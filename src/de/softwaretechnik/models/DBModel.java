@@ -6,7 +6,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-class DBModel {
+final class DBModel {
     private static final DBModel INSTANCE;
     private static final SQLException INSTANTIATION_EXCEPTION;
 
@@ -29,10 +29,12 @@ class DBModel {
     }
 
     static DBModel getInstance() {
-        if (INSTANTIATION_EXCEPTION != null) throw new IllegalStateException(
-                "a failure occurred previously when creating the DBModel instance",
-                INSTANTIATION_EXCEPTION
-        );
+        if (INSTANTIATION_EXCEPTION != null) {
+            throw new IllegalStateException(
+                    "a failure occurred previously when creating the DBModel instance",
+                    INSTANTIATION_EXCEPTION
+            );
+        }
         return INSTANCE;
     }
 

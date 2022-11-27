@@ -5,11 +5,27 @@ import de.softwaretechnik.utils.WordUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiFunction;
 
 @SuppressWarnings("unused") // TODO: remove suppression
 public final class Movie {
-    private static final Movie NULL_MOVIE =
-            new Movie(-1, null, null, null, null, null, null);
+    private static final Movie NULL_MOVIE
+            = new Movie(-1, null, null, null, null, null, null);
+    private static final BiFunction<MovieFilter, Map<String, Object>, Movie> MAPPER
+            = (filter, map) -> Optional.ofNullable((Integer) map.get("film_id")).map(
+                    movieId -> new Movie(
+                            movieId,
+                            WordUtils.capitalizeFully((String) map.get("title")),
+                            (String) map.get("description"),
+                            ((QueryInternal<Category>) Category.getQuery()).buildFromMap(map),
+                            filter.getYear()
+                                    ? ((java.sql.Date) map.get("release_year")).toLocalDate().getYear()
+                                    : null,
+                            (Integer) map.get("length"),
+                            filter.getActors()
+                                    ? Actor.getQueryForMovieID(movieId).get()
+                                    : null
+                    )).orElse(NULL_MOVIE);
     private final int id;
     private final String title;
     private final String description;
@@ -40,21 +56,7 @@ public final class Movie {
         return new QueryInternal<>() {
             @Override
             protected Movie buildFromMap(final Map<String, Object> map) {
-                return Optional.ofNullable((Integer) map.get("film_id"))
-                        .map(movieId -> new Movie(
-                                movieId,
-                                WordUtils.capitalizeFully((String) map.get("title")),
-                                (String) map.get("description"),
-                                ((QueryInternal<Category>) Category.getQuery()).buildFromMap(map),
-                                filter.getYear()
-                                        ? ((java.sql.Date) map.get("release_year")).toLocalDate().getYear()
-                                        : null,
-                                (Integer) map.get("length"),
-                                filter.getActors()
-                                        ? Actor.getQueryForMovieID(movieId).get()
-                                        : null
-                        ))
-                        .orElse(NULL_MOVIE);
+                return MAPPER.apply(filter, map);
             }
 
             @Override

@@ -12,9 +12,9 @@ record MovieFilter(
         String search,
         Set<Category> categories
 ) {
-
+    @SuppressWarnings("java:S1541")
     String toSQL() {
-        final StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
         sb.append("SELECT f.film_id,title");
         if (getDescription) sb.append(",description");
         if (getCategory || !categories.isEmpty()) sb.append(",fc.category_id");
@@ -26,10 +26,7 @@ record MovieFilter(
         if (getCategory) sb.append(" JOIN category USING(category_id)");
         if (search != null) sb.append(" WHERE title LIKE '%").append(search).append("%'");
         if (!categories.isEmpty()) {
-            final StringJoiner sj = new StringJoiner(
-                    " OR ",
-                    search != null ? " AND " : " WHERE ",
-                    "");
+            final var sj = new StringJoiner(" OR ", search != null ? " AND " : " WHERE ", "");
             for (Category c : categories) sj.add("fc.category_id=" + c.id());
             sb.append(sj);
         }

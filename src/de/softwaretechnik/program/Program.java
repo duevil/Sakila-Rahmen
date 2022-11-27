@@ -2,6 +2,7 @@ package de.softwaretechnik.program;
 
 import de.softwaretechnik.controller.MainWindowController;
 import de.softwaretechnik.models.Model;
+import de.softwaretechnik.models.Movie;
 import de.softwaretechnik.views.MainWindow;
 
 public class Program {
@@ -33,7 +34,7 @@ public class Program {
                         .withDescription()
                         .withYear()
                         .filterName("shin")
-                        .get().forEach(m -> {
+                        .get().forEach((Movie m) -> {
                             System.out.println(m);
                             if (m.description() != null) System.out.println(m.description());
                             if (m.category() != null) System.out.println(m.category());

@@ -49,10 +49,12 @@ public final class Actor {
     }
 
     static Query<Actor> getQueryForMovieID(final int movieID) {
-        if (INSTANTIATION_EXCEPTION != null) throw new IllegalStateException(
-                "a failure occurred previously when preparing the SQL statement",
-                INSTANTIATION_EXCEPTION
-        );
+        if (INSTANTIATION_EXCEPTION != null) {
+            throw new IllegalStateException(
+                    "a failure occurred previously when preparing the SQL statement",
+                    INSTANTIATION_EXCEPTION
+            );
+        }
         try {
             STATEMENT.setInt(1, movieID);
         } catch (SQLException e) {
