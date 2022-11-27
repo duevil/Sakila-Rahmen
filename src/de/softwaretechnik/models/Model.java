@@ -1,8 +1,25 @@
 package de.softwaretechnik.models;
 
+@SuppressWarnings("unused") // TODO: remove suppression
 public class Model {
+    private static final Model MODEL = new Model();
 
-    /*
-        Gesamte Business Logik der Modelle die für den Controller und die aktuellle View notwendig ist.
-     */
+    private Model() {
+    }
+
+    public static Model getInstance() {
+        return MODEL;
+    }
+
+    public MovieQuery createMovieQuery() {
+        return new MovieQuery();
+    }
+
+    public Query<Category> createCategoryQuery() {
+        return Category.getQuery();
+    }
+
+    public Query<Actor> createActorQueryForMovieID(Movie movie) {
+        return Actor.getQueryForMovieID(movie.id());
+    }
 }

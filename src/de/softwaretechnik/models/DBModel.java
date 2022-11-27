@@ -2,30 +2,41 @@ package de.softwaretechnik.models;
 
 import de.softwaretechnik.program.Program;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
-/*
+class DBModel {
+    private static final DBModel INSTANCE;
+    private static final SQLException INSTANTIATION_EXCEPTION;
 
-    DB Modell als Singelton
- */
-
-public class DBModel {
-
-    private static DBModel instance = new DBModel();
-    private static Connection connection;
-    private static Statement statement;
-
-    private DBModel(){
+    static {
+        DBModel inst = null;
+        SQLException instantiationException = null;
         try {
-            connection = DriverManager.getConnection(Program.DBCON, "root", "");
+            inst = new DBModel();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            instantiationException = e;
         }
+        INSTANCE = inst;
+        INSTANTIATION_EXCEPTION = instantiationException;
     }
 
-    public static DBModel getInstance(){
-        return instance;
+    private final Connection connection;
+
+    private DBModel() throws SQLException {
+        connection = DriverManager.getConnection(Program.DB_URL, "root", null);
     }
 
+    static DBModel getInstance() {
+        if (INSTANTIATION_EXCEPTION != null) throw new IllegalStateException(
+                "a failure occurred previously when creating the DBModel instance",
+                INSTANTIATION_EXCEPTION
+        );
+        return INSTANCE;
+    }
 
+    Connection getConnection() {
+        return connection;
+    }
 }
