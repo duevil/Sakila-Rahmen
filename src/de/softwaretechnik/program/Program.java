@@ -7,9 +7,22 @@ import de.softwaretechnik.views.MainWindow;
 
 public class Program {
     public static final String APP_TITLE = "Sakila Viewer";
-    public static final float APP_V = 0.2F;
+    public static final float APP_V = 0.4F;
     public static final String DB_URL = "jdbc:mysql://localhost/sakila";
 
+    /*TODO:
+    Exception in thread "AWT-EventQueue-0" java.lang.IllegalStateException: a failure occurred previously when creating the DBModel instance
+	at de.softwaretechnik.models.DBModel.getInstance(DBModel.java:33)
+	at de.softwaretechnik.models.QueryExecutor.getMapList(QueryExecutor.java:67)
+	at de.softwaretechnik.models.QueryExecutor.execute(QueryExecutor.java:31)
+	at de.softwaretechnik.models.QueryInternal.get(QueryInternal.java:13)
+	at de.softwaretechnik.views.MainWindow.lambda$filterPane$2(MainWindow.java:103)
+    Caused by: java.sql.SQLException: No suitable driver found for jdbc:mysql://localhost/sakila
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:706)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:229)
+	at de.softwaretechnik.models.DBModel.<init>(DBModel.java:28)
+	at de.softwaretechnik.models.DBModel.<clinit>(DBModel.java:17)
+    */
     public static void main(String[] args) {
 
         // lose Kopplung von GUI und Datenmodel

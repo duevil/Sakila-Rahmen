@@ -17,7 +17,6 @@ public class MainWindowController extends WindowAdapter implements IMainListener
 
         window.addWindowListener(this);
 
-
     }
 
     // ---------------------------------------------------------------------------
