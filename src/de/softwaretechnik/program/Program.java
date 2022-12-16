@@ -7,7 +7,7 @@ import de.softwaretechnik.views.MainWindow;
 
 public class Program {
     public static final String APP_TITLE = "Sakila Viewer";
-    public static final float APP_V = 0.4F;
+    public static final float APP_V = 0.5F;
     public static final String DB_URL = "jdbc:mysql://localhost/sakila";
 
     /*TODO:
