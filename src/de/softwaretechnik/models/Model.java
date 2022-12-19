@@ -1,6 +1,5 @@
 package de.softwaretechnik.models;
 
-@SuppressWarnings({"java:S2325", "unused"})// TODO: remove suppression: unused
 public final class Model {
     private static final Model MODEL = new Model();
 

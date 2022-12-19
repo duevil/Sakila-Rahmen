@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
-@SuppressWarnings("unused") // TODO: remove suppression
 public final class Movie {
     private static final Movie NULL_MOVIE
             = new Movie(-1, null, null, null, null, null, null);

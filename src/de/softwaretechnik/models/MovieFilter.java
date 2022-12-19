@@ -10,9 +10,12 @@ record MovieFilter(
         boolean getLength,
         boolean getActors,
         String search,
-        Set<Category> categories
+        Set<Category> categories,
+        int minYear,
+        int maxYear,
+        int minLength,
+        int maxLength
 ) {
-    @SuppressWarnings("java:S1541")
     String toSQL() {
         final var sb = new StringBuilder();
         sb.append("SELECT f.film_id,title");
@@ -24,12 +27,15 @@ record MovieFilter(
         sb.append(" FROM film f");
         if (getCategory || !categories.isEmpty()) sb.append(" JOIN film_category fc USING(film_id)");
         if (getCategory) sb.append(" JOIN category USING(category_id)");
-        if (search != null) sb.append(" WHERE title LIKE '%").append(search).append("%'");
+        sb.append(" WHERE 1=1 ");
+        if (search != null) sb.append(" AND title LIKE '%").append(search).append("%'");
         if (!categories.isEmpty()) {
-            final var sj = new StringJoiner(" OR ", search != null ? " AND " : " WHERE ", "");
-            for (Category c : categories) sj.add("fc.category_id=" + c.id());
+            final var sj = new StringJoiner(" OR ", " AND ", "");
+            for (Category c : categories) sj.add("fc.category_id = " + c.id());
             sb.append(sj);
         }
+        sb.append(" AND release_year BETWEEN %d AND %d".formatted(minYear, maxYear + 1));
+        sb.append(" AND length BETWEEN %d AND %d".formatted(minLength, maxLength));
         return sb.toString();
     }
 }

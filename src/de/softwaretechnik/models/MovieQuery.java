@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@SuppressWarnings("unused") // TODO: remove suppression
 public final class MovieQuery implements Query<Movie> {
     private static final int MAX_SEARCH_LENGTH = 4;
     private final Set<Category> categories = new HashSet<>();
@@ -14,6 +13,10 @@ public final class MovieQuery implements Query<Movie> {
     private boolean getLength;
     private boolean getActors;
     private String search;
+    private int minYear = 1960;
+    private int maxYear = 2020;
+    private int minLength = 10;
+    private int maxLength = 240;
 
     MovieQuery() {
     }
@@ -68,6 +71,24 @@ public final class MovieQuery implements Query<Movie> {
         return this;
     }
 
+    public MovieQuery filterYear(int minYear, int maxYear) {
+        if (minYear < 0 || minYear > maxYear) {
+            throw new IllegalArgumentException("min year must not be negativ or greater than max year");
+        }
+        this.minYear = minYear;
+        this.maxYear = maxYear;
+        return this;
+    }
+
+    public MovieQuery filterLength(int minLength, int maxLength) {
+        if (minLength < 0 || minLength > maxLength) {
+            throw new IllegalArgumentException("min length must not be negativ or greater than max length");
+        }
+        this.minLength = minLength;
+        this.maxLength = maxLength;
+        return this;
+    }
+
     @Override
     public List<Movie> get() {
         final MovieFilter filter = new MovieFilter(
@@ -77,7 +98,11 @@ public final class MovieQuery implements Query<Movie> {
                 getLength,
                 getActors,
                 search,
-                categories
+                categories,
+                minYear,
+                maxYear,
+                minLength,
+                maxLength
         );
         return Movie.getMovieQueryForFilter(filter).get();
     }
