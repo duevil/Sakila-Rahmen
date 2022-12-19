@@ -5,9 +5,11 @@ import de.softwaretechnik.models.Model;
 import de.softwaretechnik.models.Movie;
 import de.softwaretechnik.views.MainWindow;
 
+import java.util.List;
+
 public class Program {
     public static final String APP_TITLE = "Sakila Viewer";
-    public static final float APP_V = 0.5F;
+    public static final float APP_V = 0.7F;
     public static final String DB_URL = "jdbc:mysql://localhost/sakila";
 
     public static void main(String[] args) {

@@ -3,8 +3,6 @@ package de.softwaretechnik.views;
 
 import de.softwaretechnik.models.Movie;
 
-import java.util.Set;
-
 public class SelectedFilter {
     private String textSearch = "";
     private String genre = "";
@@ -12,7 +10,6 @@ public class SelectedFilter {
     private int maxLength = -1;
     private int fromYear = -1;
     private int toYear = -1;
-    private String[] actors;
 
 
     public String getTextSearch() {
@@ -97,18 +94,5 @@ public class SelectedFilter {
         if (fromYear == -1) return movieYear >= toYear;
         if (toYear == -1) return movieYear <= fromYear;
         return movieYear >= fromYear && movieYear <= toYear;
-    }
-
-    public String[] getActors() {
-        return actors;
-    }
-
-    public void setActors(String... actors) {
-        this.actors = actors;
-    }
-
-    public boolean hasActors(Movie m) {
-        if (actors.length == 0) return true;
-        return m.actors().stream().anyMatch(e -> Set.of(actors).contains(e.toString()));
     }
 }
