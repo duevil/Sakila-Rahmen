@@ -4,8 +4,11 @@ import de.softwaretechnik.models.Model;
 import de.softwaretechnik.models.Movie;
 import de.softwaretechnik.program.Program;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import static java.awt.Color.RED;
 
@@ -32,6 +35,9 @@ public class MainWindow extends Frame {
         return window;
     }
 
+    //public static ObserverLabel title;
+
+
     private final Color grey = new Color(47, 47, 47);
     private final Color white = new Color(246, 246, 246);
     protected final Color gold = new Color(255, 203, 116);
@@ -51,6 +57,11 @@ public class MainWindow extends Frame {
     }
 
     private Panel addItems() {
+        ObserverLabel title = new ObserverLabel("Title", ObserverLabel.Type.TITLE);
+        title.setAlignment(Label.CENTER);
+        title.setFont(new Font(VERDANA, Font.BOLD, 18));
+        title.setBackground(new Color(85, 85, 85));
+
         int width = (int) ((int) screenWidth * 0.15);
 
         Panel pane = new BorderPanel();
@@ -68,8 +79,10 @@ public class MainWindow extends Frame {
         c.insets = new Insets(30, 10, 10, 10);
         pane.add(l1, c);
 
-        TextArea area = new TextArea("", 150, 140, TextArea.SCROLLBARS_VERTICAL_ONLY);
-        area.setEditable(false);
+        ScrollPane mContent = new ScrollPane();
+        Panel area = new Panel();
+        area.setLayout(new BoxLayout(area, BoxLayout.PAGE_AXIS));
+        mContent.setPreferredSize(new Dimension(1100, 900));
         area.setFocusable(false);
 		area.setFont(new Font(VERDANA, Font.PLAIN, 14));
 		area.setForeground(white);
@@ -79,11 +92,10 @@ public class MainWindow extends Frame {
         c.gridy = 6;
         c.gridwidth = 22;
         c.gridheight = 21;
-        pane.add(area, c);
+        mContent.add(area);
+        pane.add(mContent, c);
 
-        Label searchTitle = new Label("Search:");
-        searchTitle.setFont(new Font(VERDANA, Font.BOLD, 16));
-        searchTitle.setForeground(white);
+        Label searchTitle = createHeader("Search:");
         c.gridx = 0;
         c.gridy = 6;
         c.weighty = 0;
@@ -98,9 +110,7 @@ public class MainWindow extends Frame {
         c.insets = new Insets(5, 5, 0, 5);
         pane.add(search, c);
 
-        Label genreTitle = new Label("Genre:");
-        genreTitle.setFont(new Font(VERDANA, Font.BOLD, 16));
-        genreTitle.setForeground(white);
+        Label genreTitle = createHeader("Genre:");
         c.gridy = 8;
         c.insets = new Insets(35, 5, 0, 5);
         pane.add(genreTitle, c);
@@ -110,9 +120,7 @@ public class MainWindow extends Frame {
         c.insets = new Insets(5, 5, 0, 5);
         pane.add(genres, c);
 
-        Label durationTitle = new Label("Duration:");
-        durationTitle.setFont(new Font(VERDANA, Font.BOLD, 16));
-        durationTitle.setForeground(white);
+        Label durationTitle = createHeader("Duration:");
         c.gridy = 10;
         c.insets = new Insets(35, 5, 0, 5);
         pane.add(durationTitle, c);
@@ -139,9 +147,7 @@ public class MainWindow extends Frame {
         c.insets = new Insets(5, 0, 0, 10);
         pane.add(maxLength, c);
 
-        Label releaseTitle = new Label("Release year:");
-        releaseTitle.setFont(new Font(VERDANA, Font.BOLD, 16));
-        releaseTitle.setForeground(white);
+        Label releaseTitle = createHeader("Release year:");
         c.gridy = 12;
         c.gridx = 0;
         c.gridwidth = 4;
@@ -193,9 +199,7 @@ public class MainWindow extends Frame {
 
         filterPanel.setLayout(new GridBagLayout());
 
-        Label filterLabel = new Label("Active Filters:", Label.LEFT);
-		filterLabel.setFont(new Font(VERDANA, Font.BOLD, 16));
-		filterLabel.setForeground(white);
+        Label filterLabel = createHeader("Active Filters:");
 		filterLabel.setPreferredSize(new Dimension(width - 5, 25));
         c.weightx = 0.5;
         c.gridy = 0;
@@ -235,10 +239,6 @@ public class MainWindow extends Frame {
 
         pane.add(filterPanel, c);
 
-        Label title = new Label("Title");
-        title.setAlignment(Label.CENTER);
-        title.setFont(new Font(VERDANA, Font.BOLD, 30));
-        title.setBackground(new Color(85, 85, 85));
         c.anchor = GridBagConstraints.CENTER;
         c.weighty = 0;
         c.weightx = 0.5;
@@ -249,7 +249,7 @@ public class MainWindow extends Frame {
         c.insets = new Insets(10, 5, 0, 5);
         pane.add(title, c);
 
-        Label yearLabel = new Label("[2006]");
+        ObserverLabel yearLabel = new ObserverLabel("[2006]", ObserverLabel.Type.YEAR);
         yearLabel.setFont(new Font(VERDANA, Font.PLAIN, 20));
         yearLabel.setBackground(new Color(85, 85, 85));
         yearLabel.setAlignment(Label.CENTER);
@@ -260,7 +260,7 @@ public class MainWindow extends Frame {
         c.insets = new Insets(5, 5, 0, 5);
         pane.add(yearLabel, c);
 
-        Label lengthLabel = new Label("[120min]");
+        ObserverLabel lengthLabel = new ObserverLabel("[120min]", ObserverLabel.Type.LENGTH);
         lengthLabel.setFont(new Font(VERDANA, Font.ITALIC, 16));
         lengthLabel.setBackground(new Color(85, 85, 85));
         lengthLabel.setAlignment(Label.CENTER);
@@ -290,7 +290,6 @@ public class MainWindow extends Frame {
         c.fill = GridBagConstraints.NONE;
         c.weighty = 0;
         pane.add(showYear, c);
-        showYear.addItemListener(e -> yearLabel.setVisible(showYear.getState()));
 
         Checkbox showLength = new Checkbox("Show duration", true);
         showLength.setFont(new Font(VERDANA, Font.PLAIN, 11));
@@ -368,7 +367,8 @@ public class MainWindow extends Frame {
         });
 
         remove.addActionListener(e -> {
-            area.setCaretPosition(0);
+            HashMap<String, String> movieMap = new HashMap<>();
+            area.removeAll();
             search.setText("");
             genres.select(0);
             minLength.setText("");
@@ -376,25 +376,29 @@ public class MainWindow extends Frame {
             fromYear.setText("");
             toYear.setText("");
             filterField.setText("");
-            if (showYear.getState()) {
+            if (showYear.getState() && !showLength.getState()) {
                 Model.getInstance().
                         createCategoryQuery()
                         .get()
                         .forEach(cat -> Model.getInstance()
                                 .createMovieQuery()
+                                .filterCategories(cat)
+                                .withCategory()
                                 .withDescription()
                                 .withYear()
-                                .get().forEach((Movie m) -> area.append(m.toString().concat(System.lineSeparator()))));
+                                .get().forEach((Movie m) -> movieMap.put(m.toString(), m.description())));
             }
-            if (showLength.getState()) {
+            if (showLength.getState() && !showYear.getState()) {
                 Model.getInstance().
                         createCategoryQuery()
                         .get()
                         .forEach(cat -> Model.getInstance()
                                 .createMovieQuery()
+                                .filterCategories(cat)
+                                .withCategory()
                                 .withDescription()
                                 .withLength()
-                                .get().forEach((Movie m) -> area.append(m.toString().concat(System.lineSeparator()))));
+                                .get().forEach((Movie m) -> movieMap.put(m.toString(), m.description())));
             }
             if (showYear.getState() && showLength.getState()) {
                 Model.getInstance().
@@ -402,24 +406,76 @@ public class MainWindow extends Frame {
                         .get()
                         .forEach(cat -> Model.getInstance()
                                 .createMovieQuery()
+                                .filterCategories(cat)
+                                .withCategory()
                                 .withDescription()
-                                .withLength()
                                 .withYear()
-                                .get().forEach((Movie m) -> area.append(m.toString().concat(System.lineSeparator()))));
+                                .withLength()
+                                .get().forEach((Movie m) -> movieMap.put(m.toString(), m.description())));
             } else {
                 Model.getInstance().
                         createCategoryQuery()
                         .get()
                         .forEach(cat -> Model.getInstance()
                                 .createMovieQuery()
+                                .filterCategories(cat)
+                                .withCategory()
                                 .withDescription()
-                                .get().forEach((Movie m) -> area.append(m.toString().concat(System.lineSeparator()))));
+                                .get().forEach((Movie m) -> movieMap.put(m.toString(), m.description())));
             }
+            ObservableLabel label;
+            List<String> keys = movieMap.keySet().stream().toList();
+            for (int i = 0; i < keys.size(); i++) {
+                label = new ObservableLabel(keys.get(i));
+                label.addMouseListener(new ClickListener());
+                label.setBackground(Color.ORANGE);
 
-            area.setCaretPosition(0);
+                label.addListener(title);
+                label.addListener(yearLabel);
+                label.addListener(lengthLabel);
+
+                area.add(label);
+                Component spacer = Box.createRigidArea(new Dimension(5, 5));
+                area.add(spacer);
+            }
+            area.revalidate();
+            //area.setCaretPosition(0);
         });
 
 
+        return pane;
+    }
+
+
+    private Panel createArea(ObserverLabel title) {
+        Panel pane = new Panel();
+        pane.setPreferredSize(new Dimension(1100, 900));
+        pane.setLayout(new GridBagLayout());
+
+        /*for (int i = 1; i <= 10; i++) {
+            label = new ObservableLabel("Button " + (i));
+            label.addMouseListener(new ClickListener());
+            label.setBackground(Color.ORANGE);
+            label.addListener(title);
+            c.weightx = 0.5;
+            c.fill = GridBagConstraints.HORIZONTAL;
+            c.gridx = 0;
+            c.gridy = i;
+            c.insets = new Insets(2,5,2,5);
+            pane.add(label, c);
+            if (i == 10) {
+                Label l = new Label("");
+                Panel p = new Panel();
+                p.add(l);
+                c.fill = GridBagConstraints.HORIZONTAL;
+                c.ipady = 0;
+                c.weighty = 1.0;
+                c.gridx = 0;
+                c.gridwidth = 1;
+                c.gridy = 10+1;
+                pane.add(p, c);
+            }
+        }*/
         return pane;
     }
 
@@ -465,6 +521,19 @@ public class MainWindow extends Frame {
         Label label = new Label(text);
         label.setFont(new Font(VERDANA, Font.PLAIN, 12));
         label.setForeground(white);
+        return label;
+    }
+
+    /**
+     * Creates a {@link Label} used for headers, with the font 'Verdana', in bold style, font size 16 and white text.
+     * @param text A {@link String}: The text to be displayed by the {@link Label}
+     * @return A styled header {@link Label} with the specified text
+     */
+    private Label createHeader(String text) {
+        Label label = new Label(text);
+        label.setFont(new Font(VERDANA, Font.BOLD, 16));
+        label.setForeground(white);
+        label.setAlignment(Label.LEFT);
         return label;
     }
 }
