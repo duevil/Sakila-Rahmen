@@ -3,6 +3,8 @@ package de.softwaretechnik.views.observerelements;
 import de.softwaretechnik.views.listeners.LabelListener;
 
 import java.awt.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Creates an observing {@link java.awt.Label Label} according to the observer pattern.
@@ -30,33 +32,29 @@ public class ObserverLabel extends Label implements LabelListener {
      * If the label is of the type {@link Type#TITLE Title}, it is updated to the title of the movie.<br>
      * If the label is of the type {@link Type#YEAR Year}, it is updated to the release year of the movie.<br>
      * If the label is of the type {@link Type#LENGTH Length}, it is updated to the length of the movie.<br>
-     * All of these attributes will be extracted from the text content of the clicked label if necessary. <br>
+     * All of these attributes will be extracted from the text content of the clicked label if present. <br>
      * The parent container is then {@link Container#revalidate() revalidated}.
      * @param movie The selected movie
      */
     @Override
     public void updateContent(String movie) {
-        switch (this.type) {
+        Pattern pattern;
+
+       switch (this.type) {
             case TITLE -> {
-                if (movie.contains("(")) {
-                    this.setText(movie.substring(0, movie.indexOf('(') - 1));
-                }
-                if (!movie.contains("(") && movie.contains("[")) {
-                    this.setText(movie.substring(0, movie.indexOf('[') - 1));
-                }
-                else {
-                    this.setText(movie);
-                }
+                pattern = Pattern.compile("^([A-Za-z\\s]+\\b)");
+                Matcher title = pattern.matcher(movie);
+                if (title.find()) this.setText(title.group(1));
             }
             case YEAR -> {
-                if (movie.contains("(")) {
-                    this.setText(movie.substring(movie.indexOf('(') + 1, movie.lastIndexOf(')')));
-                }
+                pattern = Pattern.compile("(\\([\\d]{4}\\))");
+                Matcher year = pattern.matcher(movie);
+                if (year.find()) this.setText(year.group(1).replace("(", "").replace(")", ""));
             }
             case LENGTH -> {
-                if (movie.contains("[")) {
-                    this.setText(movie.substring(movie.indexOf('[') + 1, movie.lastIndexOf(']')).concat(" min"));
-                }
+                pattern = Pattern.compile("(\\[[\\d]+])");
+                Matcher length = pattern.matcher(movie);
+                if (length.find()) this.setText(length.group(1).concat(" mins").replace("[", "").replace("]", ""));
             }
         }
         this.revalidate();

@@ -12,17 +12,19 @@ import de.softwaretechnik.views.observerelements.ObserverTextArea;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Logger;
 
-//TODO: Add way to filter for text search
-//		[ ] Add filter methods
+//TODO:
+//      [X] Add way to filter for text search
+//		[X] Add filter methods
 //		[X] Add clickable Movies
 //		[X] Format Movies
 //		[X] Add Movie Info to Details on Click
 //		[X] Find out why everything is repeated
+//      [ ] Reset Test Filter after backspacing from 4 chars to <4 chars
 
 /**
  *
@@ -39,6 +41,7 @@ public class MainWindow extends Frame {
     // Singleton
     private static final MainWindow window = new MainWindow();
     private final double screenWidth = Toolkit.getDefaultToolkit().getScreenSize().getWidth();
+    private final double screenHeight = Toolkit.getDefaultToolkit().getScreenSize().getHeight();
 
     public static MainWindow getInstance() {
         return window;
@@ -47,9 +50,9 @@ public class MainWindow extends Frame {
     private final Color grey = new Color(47, 47, 47);
     private final Color white = new Color(246, 246, 246);
     protected final Color gold = new Color(255, 203, 116);
-    private Label errorText = new Label();
     private static final String VERDANA = "Verdana";
 
+    private static Logger LOGGER = Logger.getLogger(MainWindow.class.getName());
     private static Label last;
 
     private static List<Category> categories;
@@ -101,8 +104,8 @@ public class MainWindow extends Frame {
         ScrollPane mContent = new ScrollPane();
         Panel area = new Panel();
         area.setLayout(new BoxLayout(area, BoxLayout.PAGE_AXIS));
-        mContent.setPreferredSize(new Dimension(1100, 1000));
-        mContent.setMinimumSize(new Dimension(1100, 1000));
+        mContent.setPreferredSize(new Dimension(1100, (int) (screenHeight - l1.getHeight() - 250)));
+        mContent.setMinimumSize(new Dimension(1100, (int) (screenHeight - l1.getHeight() - 250)));
         area.setFocusable(false);
 		area.setFont(new Font(VERDANA, Font.PLAIN, 14));
 		area.setForeground(white);
@@ -133,7 +136,7 @@ public class MainWindow extends Frame {
 
         Label genreTitle = createHeader("Genre:");
         c.gridy = 7;
-        c.insets = new Insets(10, 5, 0, 5);
+        c.insets = new Insets(20, 5, 0, 5);
         pane.add(genreTitle, c);
 
         c.insets = new Insets(10, 5, 0, 5);
@@ -145,12 +148,11 @@ public class MainWindow extends Frame {
 
         Label durationTitle = createHeader("Duration:");
         c.gridy = 24;
-        c.insets = new Insets(35, 5, 0, 5);
+        c.insets = new Insets(20, 5, 0, 5);
         pane.add(durationTitle, c);
 
         Label minLenLabel = createLabel("Min:");
         c.gridy = 25;
-        c.gridx = 0;
         c.gridwidth = 1;
         c.insets = new Insets(5, 30, 0, 5);
         pane.add(minLenLabel, c);
@@ -174,12 +176,11 @@ public class MainWindow extends Frame {
         c.gridy = 26;
         c.gridx = 0;
         c.gridwidth = 4;
-        c.insets = new Insets(35, 5, 0, 5);
+        c.insets = new Insets(20, 5, 0, 5);
         pane.add(releaseTitle, c);
 
         Label from = createLabel("From:");
         c.gridy = 27;
-        c.gridx = 0;
         c.gridwidth = 1;
         c.insets = new Insets(5, 30, 0, 5);
         pane.add(from, c);
@@ -208,15 +209,13 @@ public class MainWindow extends Frame {
         c.gridx = 0;
         c.gridwidth = 2;
         c.anchor = GridBagConstraints.CENTER;
-        c.insets = new Insets(35, 45, 20, 45);
+        c.insets = new Insets(25, 45, 20, 45);
         pane.add(submit, c);
 
         Button remove = new Button("Clear");
         remove.setBackground(new Color(85, 85, 85));
         remove.setForeground(white);
         c.gridx = 2;
-        c.gridwidth = 2;
-        c.insets = new Insets(35, 45, 20, 45);
         pane.add(remove, c);
 
         c.ipady = 0;
@@ -278,89 +277,16 @@ public class MainWindow extends Frame {
         pane.add(showLength, c);
 
         submit.addActionListener(e -> {
-            MovieQuery query = Model.getInstance().createMovieQuery();
-            int minLen = -1;
-            int maxLen = -1;
-            int fromY = -1;
-            int toY = -1;
-
-            if (!search.getText().isBlank()) {
-                query = query.filterName(search.getText());
-            }
-            List<Category> catFilter = new LinkedList<>();
-            for (int i = 0; i < categories.size(); i++) {
-                if (pane.getComponent(5 + i) instanceof Checkbox checkbox && checkbox.getState()) {
-                    catFilter.add(categories.get(i));
-                }
-            }
-            if (!catFilter.isEmpty()) {
-                if (catFilter.size() == 1) {
-                    query = query.filterCategories(catFilter.get(0));
-                }
-                else {
-                    System.out.println(catFilter);
-                    Category[] catArr = new Category[catFilter.size()];
-                    for (int i = 0; i < catFilter.size(); i++) {
-                        catArr[i] = catFilter.get(i);
-                    }
-                    System.out.println(Arrays.toString(catArr));
-                    query = query.filterCategories(catArr);
-                }
-            }
-            if (!minLength.getText().isBlank()) {
-                try {
-                    minLen = Integer.parseInt(minLength.getText());
-                } catch (NumberFormatException nfe) {
-                    errorText.setText("Not a valid minimum length");
-                }
-            }
-            else {
-                minLen = 0;
-            }
-            if (!maxLength.getText().isBlank()) {
-                try {
-                    maxLen = Integer.parseInt(maxLength.getText());
-                } catch (NumberFormatException nfe) {
-                    errorText.setText("Not a valid maximum length");
-                }
-            }
-            else {
-                maxLen = Integer.MAX_VALUE;
-            }
-            if (!(minLen == 0 && maxLen == Integer.MAX_VALUE)) {
-                query = query.filterLength(minLen, maxLen);
-            }
-
-            if (!fromYear.getText().isBlank()) {
-                try {
-                    fromY = Integer.parseInt(fromYear.getText());
-                } catch (NumberFormatException nfe) {
-                    errorText.setText("Not a valid starting year");
-                }
-            }
-            else {
-                fromY = Integer.MIN_VALUE;
-            }
-            if (!toYear.getText().isBlank()) {
-                try {
-                    toY = Integer.parseInt(toYear.getText());
-                } catch (NumberFormatException nfe) {
-                    errorText.setText("Not a valid ending year");
-                }
-            }
-            else {
-                toY = Integer.MAX_VALUE;
-            }
-            if (!(fromY == Integer.MIN_VALUE && toY == Integer.MAX_VALUE)) {
-                query = query.filterYear(fromY, toY);
-            }
-            List<Movie> movieQuery = query.get();
-            System.out.println(movieQuery);
-            //TODO: Execute Query
+            MovieQuery query = filter(search, pane, minLength, maxLength, fromYear, toYear);
+            HashMap<String, String> movieQuery = new HashMap<>();
+            query = getQuery(query, showYear, showLength);
+            query.withDescription().get().forEach((Movie m) -> movieQuery.put(m.toString(), m.description()));
+            area.removeAll();
+            addAll(movieQuery, title, yearLabel, lengthLabel, details, area);
         });
 
         remove.addActionListener(e -> {
-            HashMap<String, String> movieMap = new HashMap<>();
+            HashMap<String, String> movieMap;
             area.removeAll();
             search.setText("");
             minLength.setText("");
@@ -372,22 +298,137 @@ public class MainWindow extends Frame {
                     checkbox.setState(false);
                 }
             }
-            if (showYear.getState() && !showLength.getState()) {
-                movieMap = queryYear();
-            }
-            if (showLength.getState() && !showYear.getState()) {
-                movieMap = queryLength();
-            }
-            if (showYear.getState() && showLength.getState()) {
-                movieMap = queryBoth();
-            }
-            if (!showYear.getState() && !showLength.getState()) {
-                movieMap = queryNeither();
-            }
+            movieMap = determineQuery(showYear, showLength);
             addAll(movieMap, title, yearLabel, lengthLabel, details, area);
         });
-        addAll(queryBoth(), title, yearLabel, lengthLabel, details, area);
+
+        search.addTextListener(e -> {
+            if (search.getText().length() >= 4) {
+                MovieQuery query = filter(search, pane, minLength, maxLength, fromYear, toYear);
+                HashMap<String, String> movieQuery = new HashMap<>();
+                query = getQuery(query, showYear, showLength);
+                query.withDescription().get().forEach((Movie m) -> movieQuery.put(m.toString(), m.description()));
+                area.removeAll();
+                addAll(movieQuery, title, yearLabel, lengthLabel, details, area);
+            }
+        });
+
+        addAll(determineQuery(showYear, showLength), title, yearLabel, lengthLabel, details, area);
         return pane;
+    }
+
+    private MovieQuery filter(TextField search,
+                        Panel pane,
+                        TextField minLength,
+                        TextField maxLength,
+                        TextField fromYear,
+                        TextField toYear) {
+        MovieQuery query = Model.getInstance().createMovieQuery();
+        int minLen = -1;
+        int maxLen = -1;
+        int fromY = -1;
+        int toY = -1;
+
+        if (!search.getText().isBlank()) {
+            query = query.filterName(search.getText());
+        }
+        List<Category> catFilter = new LinkedList<>();
+        for (int i = 0; i < categories.size(); i++) {
+            if (pane.getComponent(5 + i) instanceof Checkbox checkbox && checkbox.getState()) {
+                catFilter.add(categories.get(i));
+            }
+        }
+        if (!catFilter.isEmpty()) {
+            if (catFilter.size() == 1) {
+                query = query.filterCategories(catFilter.get(0));
+            }
+            else {
+                query = query.filterCategories(catFilter.toArray(new Category[0]));
+            }
+        }
+        if (!minLength.getText().isBlank()) {
+            try {
+                minLen = Integer.parseInt(minLength.getText());
+            } catch (NumberFormatException nfe) {
+                LOGGER.severe("Not a valid minimum length");
+            }
+        }
+        else {
+            minLen = 0;
+        }
+        if (!maxLength.getText().isBlank()) {
+            try {
+                maxLen = Integer.parseInt(maxLength.getText());
+            } catch (NumberFormatException nfe) {
+                LOGGER.severe("Not a valid maximum length");
+            }
+        }
+        else {
+            maxLen = Integer.MAX_VALUE;
+        }
+        if (!(minLen == 0 && maxLen == Integer.MAX_VALUE)) {
+            query = query.filterLength(minLen, maxLen);
+        }
+
+        if (!fromYear.getText().isBlank()) {
+            try {
+                fromY = Integer.parseInt(fromYear.getText());
+            } catch (NumberFormatException nfe) {
+                LOGGER.severe("Not a valid starting year");
+            }
+        }
+        else {
+            fromY = Integer.MIN_VALUE;
+        }
+        if (!toYear.getText().isBlank()) {
+            try {
+                toY = Integer.parseInt(toYear.getText());
+            } catch (NumberFormatException nfe) {
+                LOGGER.severe("Not a valid ending year");
+            }
+        }
+        else {
+            toY = Integer.MAX_VALUE;
+        }
+        if (!(fromY == Integer.MIN_VALUE && toY == Integer.MAX_VALUE)) {
+            query = query.filterYear(fromY, toY);
+        }
+        return query;
+    }
+
+    private MovieQuery getQuery(MovieQuery query, Checkbox showYear, Checkbox showLength) {
+        if (showYear.getState() && !showLength.getState()) {
+            return query.withYear();
+        }
+        if (showLength.getState() && !showYear.getState()) {
+            return query.withLength();
+        }
+        if (showYear.getState() && showLength.getState()) {
+            return query.withYear().withLength();
+        }
+        else {
+            assert !showYear.getState() && !showLength.getState();
+            return query;
+        }
+    }
+
+    private HashMap<String, String> determineQuery(Checkbox showYear, Checkbox showLength) {
+        HashMap<String, String> movieMap = new HashMap<>();
+        Model.getInstance().
+                createCategoryQuery()
+                .get()
+                .forEach(cat -> buildQuery(cat, showYear, showLength)
+                        .get().forEach((Movie m) -> movieMap.put(m.toString(), m.description())));
+        return movieMap;
+    }
+
+    private MovieQuery buildQuery(Category cat, Checkbox showYear, Checkbox showLength) {
+        MovieQuery query = Model.getInstance()
+                .createMovieQuery()
+                .filterCategories(cat)
+                .withCategory()
+                .withDescription();
+        return getQuery(query, showYear, showLength);
     }
 
     private Checkbox createCheckbox(String text) {
@@ -423,66 +464,6 @@ public class MainWindow extends Frame {
             area.add(spacer);
         }
         area.revalidate();
-    }
-
-    private HashMap<String, String> queryNeither() {
-        HashMap<String, String> movieMap = new HashMap<>();
-        Model.getInstance().
-                createCategoryQuery()
-                .get()
-                .forEach(cat -> Model.getInstance()
-                        .createMovieQuery()
-                        .filterCategories(cat)
-                        .withCategory()
-                        .withDescription()
-                        .get().forEach((Movie m) -> movieMap.put(m.toString(), m.description())));
-        return movieMap;
-    }
-
-    private HashMap<String, String> queryYear() {
-        HashMap<String, String> movieMap = new HashMap<>();
-        Model.getInstance().
-                createCategoryQuery()
-                .get()
-                .forEach(cat -> Model.getInstance()
-                        .createMovieQuery()
-                        .filterCategories(cat)
-                        .withCategory()
-                        .withYear()
-                        .withDescription()
-                        .get().forEach((Movie m) -> movieMap.put(m.toString(), m.description())));
-        return movieMap;
-    }
-
-    private HashMap<String, String> queryLength() {
-        HashMap<String, String> movieMap = new HashMap<>();
-        Model.getInstance().
-                createCategoryQuery()
-                .get()
-                .forEach(cat -> Model.getInstance()
-                        .createMovieQuery()
-                        .filterCategories(cat)
-                        .withCategory()
-                        .withLength()
-                        .withDescription()
-                        .get().forEach((Movie m) -> movieMap.put(m.toString(), m.description())));
-        return movieMap;
-    }
-
-    private HashMap<String, String> queryBoth() {
-        HashMap<String, String> movieMap = new HashMap<>();
-        Model.getInstance().
-                createCategoryQuery()
-                .get()
-                .forEach(cat -> Model.getInstance()
-                        .createMovieQuery()
-                        .filterCategories(cat)
-                        .withCategory()
-                        .withLength()
-                        .withYear()
-                        .withDescription()
-                        .get().forEach((Movie m) -> movieMap.put(m.toString(), m.description())));
-        return movieMap;
     }
 
     /**
