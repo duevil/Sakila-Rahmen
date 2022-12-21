@@ -4,8 +4,27 @@ import java.util.Locale;
 import java.util.StringJoiner;
 import java.util.StringTokenizer;
 
-public interface WordUtils {
-    static String capitalizeFully(final String str) {
+/**
+ * Utility class for word formatting
+ *
+ * @author Malte Kasolowsky
+ */
+public final class WordUtils {
+    /**
+     * Private constructor as instantiation is not needed for utility class
+     */
+    private WordUtils() {
+    }
+
+    /**
+     * Capitalizes each word of the String;
+     * every first letter of a word changed to upper case, all following to lower case;
+     * a word is delimited with a simple white space character (' ')
+     *
+     * @param str The String to capitalize
+     * @return The capitalized String
+     */
+    public static String capitalizeFully(final String str) {
         final var sj = new StringJoiner(" ");
         final var st = new StringTokenizer(str, " ");
         while (st.hasMoreTokens()) {

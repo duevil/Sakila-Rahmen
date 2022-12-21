@@ -6,6 +6,11 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Map;
 
+/**
+ * Class for storing and querying author data
+ *
+ * @author Malte Kasolowsky
+ */
 public final class Actor {
     private static final String SQL = """
             SELECT first_name, last_name
@@ -43,11 +48,23 @@ public final class Actor {
     private final String firstName;
     private final String lastName;
 
+    /**
+     * Privat constructor, as an instantiation will only be performed by the underlying {@link Query}
+     *
+     * @param firstName The first name of the author to be stored
+     * @param lastName  The last name of the author to be stored
+     */
     private Actor(final String firstName, final String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
     }
 
+    /**
+     * Gets the underlying {@link Query} for querying authors for a movie
+     *
+     * @param movieID The id of a movie the authors should be queried for
+     * @return The updated, underlying query
+     */
     static Query<Actor> getQueryForMovieID(final int movieID) {
         if (INSTANTIATION_EXCEPTION != null) {
             throw new IllegalStateException(
@@ -63,6 +80,11 @@ public final class Actor {
         return QUERY;
     }
 
+    /**
+     * Creates a String representation of the author
+     *
+     * @return A String containing the author's information
+     */
     @Override
     public String toString() {
         return firstName + ' ' + lastName;

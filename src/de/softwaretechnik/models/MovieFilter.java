@@ -3,6 +3,22 @@ package de.softwaretechnik.models;
 import java.util.Set;
 import java.util.StringJoiner;
 
+/**
+ * Record for filtering a {@link MovieQuery}
+ *
+ * @param getDescription Whether the movie description should be queried or not
+ * @param getCategory    Whether the movie category should be queried or not
+ * @param getYear        Whether the movie release year should be queried or not
+ * @param getLength      Whether the movie length should be queried or not
+ * @param getActors      Whether the movie actors should be queried or not
+ * @param search         A string to search the movie titles
+ * @param categories     The categories for which movies should only be queried
+ * @param minYear        The year a movies release year must be later or equal to
+ * @param maxYear        The year a movies release year must be earlier or equal to
+ * @param minLength      The length a movies length must be greater or equal to
+ * @param maxLength      The length a movies length must be smaller or equal to
+ * @author Malte Kasolowsky
+ */
 record MovieFilter(
         boolean getDescription,
         boolean getCategory,
@@ -16,6 +32,11 @@ record MovieFilter(
         int minLength,
         int maxLength
 ) {
+    /**
+     * Creates a SQL statement String from the filter's values
+     *
+     * @return A String for querying movies by this filter
+     */
     String toSQL() {
         final var sb = new StringBuilder();
         sb.append("SELECT f.film_id,title");
