@@ -6,16 +6,16 @@ import de.softwaretechnik.models.Movie;
 import de.softwaretechnik.models.MovieQuery;
 import de.softwaretechnik.program.Program;
 import de.softwaretechnik.views.listeners.ClickListener;
-import de.softwaretechnik.views.observerElements.ObservableLabel;
-import de.softwaretechnik.views.observerElements.ObserverLabel;
-import de.softwaretechnik.views.observerElements.ObserverTextArea;
+import de.softwaretechnik.views.observerelements.ObservableLabel;
+import de.softwaretechnik.views.observerelements.ObserverLabel;
+import de.softwaretechnik.views.observerelements.ObserverTextArea;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
-
-import static java.awt.Color.RED;
 
 //TODO: Add way to filter for text search
 //		[ ] Add filter methods
@@ -24,6 +24,10 @@ import static java.awt.Color.RED;
 //		[X] Add Movie Info to Details on Click
 //		[X] Find out why everything is repeated
 
+/**
+ *
+ * @author Elisa Johanna Woelk (m30192)
+ */
 public class MainWindow extends Frame {
 
 	/*
@@ -48,6 +52,8 @@ public class MainWindow extends Frame {
 
     private static Label last;
 
+    private static List<Category> categories;
+
     public static Label getLast() {
         return last;
     }
@@ -56,6 +62,7 @@ public class MainWindow extends Frame {
     }
 
     private MainWindow() {
+        categories = Model.getInstance().createCategoryQuery().get();
         setBackground(grey);
         setTitle(Program.APP_TITLE + " [" + Program.APP_V + "]");
         setLocationRelativeTo(null);
@@ -68,14 +75,15 @@ public class MainWindow extends Frame {
     }
 
     private Panel addItems() {
+        // Label for movie title
         ObserverLabel title = new ObserverLabel("", ObserverLabel.Type.TITLE);
         title.setAlignment(Label.CENTER);
-        title.setFont(new Font(VERDANA, Font.BOLD, 18));
+        title.setPreferredSize(new Dimension((int) ((int) (screenWidth / 10) * 1.5), 40));
+        title.setFont(new Font(VERDANA, Font.BOLD, 20));
+        title.setForeground(white);
         title.setBackground(new Color(85, 85, 85));
 
-        int width = (int) ((int) screenWidth * 0.15);
-
-        Panel pane = new BorderPanel();
+        Panel pane = new Panel();
         pane.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -85,7 +93,7 @@ public class MainWindow extends Frame {
         l1.setFont(new Font(VERDANA, Font.BOLD, 80));
         c.gridx = 0;
         c.gridy = 0;
-        c.gridwidth = 32;
+        c.gridwidth = 7;
         c.gridheight = 5;
         c.insets = new Insets(30, 10, 10, 10);
         pane.add(l1, c);
@@ -93,22 +101,24 @@ public class MainWindow extends Frame {
         ScrollPane mContent = new ScrollPane();
         Panel area = new Panel();
         area.setLayout(new BoxLayout(area, BoxLayout.PAGE_AXIS));
-        mContent.setPreferredSize(new Dimension(1100, 900));
+        mContent.setPreferredSize(new Dimension(1100, 1000));
+        mContent.setMinimumSize(new Dimension(1100, 1000));
         area.setFocusable(false);
 		area.setFont(new Font(VERDANA, Font.PLAIN, 14));
 		area.setForeground(white);
         area.setBackground(new Color(85, 85, 85));
         c.weightx = 0.5;
-        c.gridx = 5;
-        c.gridy = 6;
-        c.gridwidth = 22;
-        c.gridheight = 21;
+        c.gridx = 4;
+        c.gridy = 5;
+        c.gridwidth = 1;
+        c.gridheight = 40;
         mContent.add(area);
         pane.add(mContent, c);
 
         Label searchTitle = createHeader("Search:");
+        searchTitle.setPreferredSize(new Dimension((int) ((int) (screenWidth / 10) * 1.5), 40));
         c.gridx = 0;
-        c.gridy = 6;
+        c.gridy = 5;
         c.weighty = 0;
         c.gridwidth = 4;
         c.gridheight = 1;
@@ -117,27 +127,29 @@ public class MainWindow extends Frame {
 
         TextField search = new TextField();
         search.setFont(new Font(VERDANA, Font.PLAIN, 20));
-        c.gridy = 7;
+        c.gridy = 6;
         c.insets = new Insets(5, 5, 0, 5);
         pane.add(search, c);
 
         Label genreTitle = createHeader("Genre:");
-        c.gridy = 8;
-        c.insets = new Insets(35, 5, 0, 5);
+        c.gridy = 7;
+        c.insets = new Insets(10, 5, 0, 5);
         pane.add(genreTitle, c);
 
-        Choice genres = selectGenre(width);
-        c.gridy = 9;
-        c.insets = new Insets(5, 5, 0, 5);
-        pane.add(genres, c);
+        c.insets = new Insets(10, 5, 0, 5);
+        for (int i = 0; i < categories.size(); i++) {
+            c.gridy = 8 + i;
+            Checkbox checkbox = createCheckbox(categories.get(i).toString());
+            pane.add(checkbox, c);
+        }
 
         Label durationTitle = createHeader("Duration:");
-        c.gridy = 10;
+        c.gridy = 24;
         c.insets = new Insets(35, 5, 0, 5);
         pane.add(durationTitle, c);
 
         Label minLenLabel = createLabel("Min:");
-        c.gridy = 11;
+        c.gridy = 25;
         c.gridx = 0;
         c.gridwidth = 1;
         c.insets = new Insets(5, 30, 0, 5);
@@ -159,14 +171,14 @@ public class MainWindow extends Frame {
         pane.add(maxLength, c);
 
         Label releaseTitle = createHeader("Release year:");
-        c.gridy = 12;
+        c.gridy = 26;
         c.gridx = 0;
         c.gridwidth = 4;
         c.insets = new Insets(35, 5, 0, 5);
         pane.add(releaseTitle, c);
 
         Label from = createLabel("From:");
-        c.gridy = 13;
+        c.gridy = 27;
         c.gridx = 0;
         c.gridwidth = 1;
         c.insets = new Insets(5, 30, 0, 5);
@@ -190,7 +202,9 @@ public class MainWindow extends Frame {
         Button submit = new Button("Filter");
         submit.setBackground(new Color(85, 85, 85));
         submit.setForeground(white);
-        c.gridy = 14;
+        c.ipady = 15;
+        c.ipadx = 10;
+        c.gridy = 28;
         c.gridx = 0;
         c.gridwidth = 2;
         c.anchor = GridBagConstraints.CENTER;
@@ -205,88 +219,42 @@ public class MainWindow extends Frame {
         c.insets = new Insets(35, 45, 20, 45);
         pane.add(remove, c);
 
-        Panel filterPanel = new BorderPanel();
-        filterPanel.setBackground(grey);
-
-        filterPanel.setLayout(new GridBagLayout());
-
-        Label filterLabel = createHeader("Active Filters:");
-		filterLabel.setPreferredSize(new Dimension(width - 5, 25));
-        c.weightx = 0.5;
-        c.gridy = 0;
-        c.gridx = 0;
-        c.gridwidth = 1;
-        c.insets = new Insets(5, 5, 5, 5);
-        filterPanel.add(filterLabel, c);
-
-        TextArea filterField = new TextArea("", 10, 5, TextArea.SCROLLBARS_NONE);
-        filterField.setEditable(false);
-        filterField.setFocusable(false);
-        filterField.setBackground(new Color(60, 60, 60));
-        filterField.setFont(new Font(VERDANA, Font.PLAIN, 12));
-        filterField.setForeground(white);
-        c.fill = GridBagConstraints.BOTH;
-        c.gridy = 1;
-        c.gridx = 0;
-        c.gridwidth = 1;
-        c.insets = new Insets(0, 5, 5, 5);
-        c.weighty = 1.0;
-        filterPanel.add(filterField, c);
-
-        c.fill = GridBagConstraints.BOTH;
-        c.gridy = 9;
-        c.gridx = 0;
-        c.gridwidth = 4;
-        c.insets = new Insets(20, 5, 10, 5);
-        c.weighty = 1.0;
-        pane.add(filterPanel, c);
-
-        filterPanel.setBackground(new Color(60, 60, 60));
-        c.fill = GridBagConstraints.BOTH;
-        c.gridy = 15;
-        c.gridx = 0;
-        c.gridwidth = 4;
-        c.insets = new Insets(20, 5, 10, 5);
-        c.weighty = 1.0;
-
-        pane.add(filterPanel, c);
-
-        c.anchor = GridBagConstraints.CENTER;
+        c.ipady = 0;
+        c.ipadx = 0;
         c.weighty = 0;
         c.weightx = 0.5;
-        c.gridx = 29;
-        c.gridy = 6;
-        c.gridwidth = 4;
-        c.gridheight = 2;
+        c.gridx = 5;
+        c.gridy = 5;
+        c.gridwidth = 2;
         c.insets = new Insets(10, 5, 0, 5);
         pane.add(title, c);
 
         ObserverLabel yearLabel = new ObserverLabel("", ObserverLabel.Type.YEAR);
+        yearLabel.setForeground(white);
         yearLabel.setFont(new Font(VERDANA, Font.PLAIN, 20));
         yearLabel.setBackground(new Color(85, 85, 85));
         yearLabel.setAlignment(Label.CENTER);
 
-        c.gridy = 8;
-        c.gridheight = 1;
-        c.ipady = 0;
+        c.gridy = 6;
         c.insets = new Insets(5, 5, 0, 5);
         pane.add(yearLabel, c);
 
         ObserverLabel lengthLabel = new ObserverLabel("", ObserverLabel.Type.LENGTH);
+        lengthLabel.setForeground(white);
         lengthLabel.setFont(new Font(VERDANA, Font.ITALIC, 16));
         lengthLabel.setBackground(new Color(85, 85, 85));
         lengthLabel.setAlignment(Label.CENTER);
-        c.gridy = 9;
-        c.gridheight = 1;
+        c.gridy = 7;
         pane.add(lengthLabel, c);
 
         ObserverTextArea details = new ObserverTextArea("", 1, 1, TextArea.SCROLLBARS_VERTICAL_ONLY);
         details.setEditable(false);
         details.setFocusable(false);
         details.setFont(new Font(VERDANA, Font.ITALIC, 16));
+        details.setForeground(white);
         details.setBackground(new Color(85, 85, 85));
-        c.gridy = 10;
-        c.gridheight = 15;
+        c.gridy = 8;
+        c.gridheight = 20;
         c.fill = GridBagConstraints.BOTH;
         c.weighty = 1;
         c.insets = new Insets(10, 5, 5, 5);
@@ -296,8 +264,8 @@ public class MainWindow extends Frame {
         showYear.setFont(new Font(VERDANA, Font.PLAIN, 11));
         showYear.setForeground(white);
         c.anchor = GridBagConstraints.CENTER;
-        c.gridy = 25;
-        c.gridx = 30;
+        c.gridy = 28;
+        c.gridx = 5;
         c.gridwidth = 1;
         c.fill = GridBagConstraints.NONE;
         c.weighty = 0;
@@ -306,115 +274,104 @@ public class MainWindow extends Frame {
         Checkbox showLength = new Checkbox("Show duration", true);
         showLength.setFont(new Font(VERDANA, Font.PLAIN, 11));
         showLength.setForeground(white);
-        c.gridx = 31;
+        c.gridx = 6;
         pane.add(showLength, c);
 
-        Label footer = new Label("ERROR");
-        footer.setFont(new Font(VERDANA, Font.PLAIN, 11));
-        footer.setForeground(RED);
-        c.weightx = 1;
-        c.gridy = 29;
-        c.gridx = 0;
-        c.gridwidth = 32;
-        c.gridheight = 4;
-        pane.add(footer, c);
-
-        HashMap<String, String> selectedFilters = new HashMap<>();
         submit.addActionListener(e -> {
-            SelectedFilter selectedFilter = new SelectedFilter();
             MovieQuery query = Model.getInstance().createMovieQuery();
-            int genre = genres.getSelectedIndex();
             int minLen = -1;
             int maxLen = -1;
             int fromY = -1;
             int toY = -1;
+
             if (!search.getText().isBlank()) {
-                selectedFilter.setTextSearch(search.getText());
                 query = query.filterName(search.getText());
-                selectedFilters.put("Containing:", search.getText());
             }
-            if (genre != 0) {
-                selectedFilter.setGenre(genres.getItem(genre));
-                List<Category> categories = Model.getInstance().createCategoryQuery().get();
-                Category cat = null;
-                for (Category category : categories) {
-                    if (category.toString().equals(genres.getItem(genre))) cat = category;
+            List<Category> catFilter = new LinkedList<>();
+            for (int i = 0; i < categories.size(); i++) {
+                if (pane.getComponent(5 + i) instanceof Checkbox checkbox && checkbox.getState()) {
+                    catFilter.add(categories.get(i));
                 }
-                query = query.filterCategories(cat);
-                selectedFilters.put("Genre:", genres.getItem(genre));
+            }
+            if (!catFilter.isEmpty()) {
+                if (catFilter.size() == 1) {
+                    query = query.filterCategories(catFilter.get(0));
+                }
+                else {
+                    System.out.println(catFilter);
+                    Category[] catArr = new Category[catFilter.size()];
+                    for (int i = 0; i < catFilter.size(); i++) {
+                        catArr[i] = catFilter.get(i);
+                    }
+                    System.out.println(Arrays.toString(catArr));
+                    query = query.filterCategories(catArr);
+                }
             }
             if (!minLength.getText().isBlank()) {
                 try {
                     minLen = Integer.parseInt(minLength.getText());
-                    selectedFilter.setMinLength(minLen);
-                    selectedFilters.put("Min Duration:", String.valueOf(minLen).concat(" minutes"));
                 } catch (NumberFormatException nfe) {
                     errorText.setText("Not a valid minimum length");
                 }
             }
+            else {
+                minLen = 0;
+            }
             if (!maxLength.getText().isBlank()) {
                 try {
-                    maxLen = Integer.parseInt(minLength.getText());
-                    selectedFilter.setMaxLength(maxLen);
-                    selectedFilters.put("Max Duration:", String.valueOf(maxLen).concat(" minutes"));
+                    maxLen = Integer.parseInt(maxLength.getText());
                 } catch (NumberFormatException nfe) {
                     errorText.setText("Not a valid maximum length");
                 }
             }
+            else {
+                maxLen = Integer.MAX_VALUE;
+            }
+            if (!(minLen == 0 && maxLen == Integer.MAX_VALUE)) {
+                query = query.filterLength(minLen, maxLen);
+            }
+
             if (!fromYear.getText().isBlank()) {
                 try {
                     fromY = Integer.parseInt(fromYear.getText());
-                    selectedFilter.setFromYear(fromY);
-                    selectedFilters.put("From Year:", String.valueOf(fromY));
                 } catch (NumberFormatException nfe) {
                     errorText.setText("Not a valid starting year");
                 }
             }
+            else {
+                fromY = Integer.MIN_VALUE;
+            }
             if (!toYear.getText().isBlank()) {
                 try {
                     toY = Integer.parseInt(toYear.getText());
-                    selectedFilter.setToYear(toY);
-                    selectedFilters.put("To Year:", String.valueOf(toY));
                 } catch (NumberFormatException nfe) {
                     errorText.setText("Not a valid ending year");
                 }
             }
-            if (minLen != -1 && maxLen != -1) {
-                query.filterLength(minLen, maxLen);
+            else {
+                toY = Integer.MAX_VALUE;
             }
-            if (minLen != -1 && maxLen == -1) {
-                query.filterLength(minLen, Integer.MAX_VALUE);
+            if (!(fromY == Integer.MIN_VALUE && toY == Integer.MAX_VALUE)) {
+                query = query.filterYear(fromY, toY);
             }
-            if (minLen == -1 && maxLen != -1) {
-                query.filterLength(Integer.MIN_VALUE, maxLen);
-            }
-            if (fromY != -1 && toY != -1) {
-                query.filterYear(fromY, toY);
-            }
-            if (fromY != -1 && toY == -1) {
-                query.filterYear(fromY, Integer.MAX_VALUE);
-            }
-            if (fromY == -1 && toY != -1) {
-                query.filterYear(Integer.MIN_VALUE, toY);
-            }
-            filterField.setText(String.valueOf(selectedFilters)
-                    .substring(1, String.valueOf(selectedFilters)
-                            .length() - 1).replace('=', ' ')
-                    .replace(", ", System.lineSeparator())
-                    .trim());
-
+            List<Movie> movieQuery = query.get();
+            System.out.println(movieQuery);
+            //TODO: Execute Query
         });
 
         remove.addActionListener(e -> {
             HashMap<String, String> movieMap = new HashMap<>();
             area.removeAll();
             search.setText("");
-            genres.select(0);
             minLength.setText("");
             maxLength.setText("");
             fromYear.setText("");
             toYear.setText("");
-            filterField.setText("");
+            for (int i = 0; i < categories.size(); i++) {
+                if (pane.getComponent(5 + i) instanceof Checkbox checkbox) {
+                    checkbox.setState(false);
+                }
+            }
             if (showYear.getState() && !showLength.getState()) {
                 movieMap = queryYear();
             }
@@ -423,13 +380,22 @@ public class MainWindow extends Frame {
             }
             if (showYear.getState() && showLength.getState()) {
                 movieMap = queryBoth();
-            } else {
+            }
+            if (!showYear.getState() && !showLength.getState()) {
                 movieMap = queryNeither();
             }
             addAll(movieMap, title, yearLabel, lengthLabel, details, area);
         });
         addAll(queryBoth(), title, yearLabel, lengthLabel, details, area);
         return pane;
+    }
+
+    private Checkbox createCheckbox(String text) {
+        Checkbox checkbox = new Checkbox(text);
+        checkbox.setFont(new Font(VERDANA, Font.PLAIN, 14));
+        checkbox.setForeground(white);
+
+        return checkbox;
     }
 
     private void addAll(
@@ -517,38 +483,6 @@ public class MainWindow extends Frame {
                         .withDescription()
                         .get().forEach((Movie m) -> movieMap.put(m.toString(), m.description())));
         return movieMap;
-    }
-
-    /**
-     * Sets up the {@link Choice}-Element for selecting a genre.
-     *
-     * @param width An {@link Integer}: The width of the parent container
-     * @return A {@link Choice} containing all available genres
-     */
-    private Choice selectGenre(int width) {
-        Choice genres = new Choice();
-        genres.setPreferredSize(new Dimension(width - 40, 30));
-        genres.add("All");
-        genres.add("Action");
-        genres.add("Animation");
-        genres.add("Children");
-        genres.add("Classics");
-        genres.add("Comedy");
-        genres.add("Documentary");
-        genres.add("Drama");
-        genres.add("Family");
-        genres.add("Foreign");
-        genres.add("Games");
-        genres.add("Horror");
-        genres.add("Music");
-        genres.add("New");
-        genres.add("Sci-Fi");
-        genres.add("Sports");
-        genres.add("Travel");
-        genres.setBackground(grey);
-        genres.setForeground(white);
-        genres.setFocusable(false);
-        return genres;
     }
 
     /**
