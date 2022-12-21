@@ -51,7 +51,7 @@ record MovieFilter(
         sb.append(" WHERE 1=1 ");
         if (search != null) sb.append(" AND title LIKE '%").append(search).append("%'");
         if (!categories.isEmpty()) {
-            final var sj = new StringJoiner(" OR ", " AND ", "");
+            final var sj = new StringJoiner(" OR ", " AND (", ")");
             for (Category c : categories) sj.add("fc.category_id = " + c.id());
             sb.append(sj);
         }
