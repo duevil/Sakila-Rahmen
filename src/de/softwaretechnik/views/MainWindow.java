@@ -25,60 +25,104 @@ import java.util.logging.Logger;
 //		[X] Add Movie Info to Details on Click
 //		[X] Find out why everything is repeated
 //      [ ] Reset Test Filter after backspacing from 4 chars to <4 chars
+//      [ ] Answer questions
 
 /**
- *
+ * Sets up the GUI with all necessary components and functions
  * @author Elisa Johanna Woelk (m30192)
  */
 public class MainWindow extends Frame {
 
-	/*
-		- Main Window als Singleton
-		- Nur UI/GUI spezifische Implementierungen
-	 */
-
-    // ------------------------------------------------------------------------------------------------
-    // Singleton
+    /**
+     * The MainWindow instance used for setting up the GUI according to the Singleton Pattern
+     */
     private static final MainWindow window = new MainWindow();
+
+    /**
+     * The screen width of the users display used for dynamic layout
+     */
     private final double screenWidth = Toolkit.getDefaultToolkit().getScreenSize().getWidth();
+
+    /**
+     * The screen height of the users display used for dynamic layout
+     */
     private final double screenHeight = Toolkit.getDefaultToolkit().getScreenSize().getHeight();
 
+    /**
+     * The factory method for getting the {@link #window instance} according to the Singleton Pattern
+     * @return A {@link MainWindow} object: The instance of this class
+     */
     public static MainWindow getInstance() {
         return window;
     }
 
-    private final Color grey = new Color(47, 47, 47);
+    /**
+     * A color used for the GUI's text
+     */
     private final Color white = new Color(246, 246, 246);
-    protected final Color gold = new Color(255, 203, 116);
+
+    /**
+     * The font family used in the GUI
+     */
     private static final String VERDANA = "Verdana";
 
-    private static Logger LOGGER = Logger.getLogger(MainWindow.class.getName());
+    /**
+     * The {@link Logger} used for this class
+     */
+    private static final Logger LOGGER = Logger.getLogger(MainWindow.class.getName());
+
+    /**
+     * A {@link List} storing the available {@link Category categories}
+     */
+    private List<Category> categories;
+
+    /**
+     * A {@link Label} storing the last clicked label when browsing the list of movies
+     */
     private static Label last;
 
-    private static List<Category> categories;
-
+    /**
+     * A Getter for {@link #last}
+     * @return A {@link Label}: {@link #last}
+     */
     public static Label getLast() {
         return last;
     }
+
+    /**
+     * A Setter for {@link #last}
+     */
     public static void setLast(Label last) {
         MainWindow.last = last;
     }
 
+    /**
+     * The private constructor for this class according to the Singleton Pattern <br>
+     * Fills {@link #categories} with all {@link Category categories} and sets up the GUI
+     */
     private MainWindow() {
         categories = Model.getInstance().createCategoryQuery().get();
-        setBackground(grey);
+        setBackground(new Color(47, 47, 47));
         setTitle(Program.APP_TITLE + " [" + Program.APP_V + "]");
         setLocationRelativeTo(null);
         setExtendedState(MAXIMIZED_BOTH);
         createGUI();
     }
 
+    /**
+     * Adds all elements to the GUI
+     */
     public void createGUI() {
         add(addItems());
     }
 
+    /**
+     * Sets up the GUI via a {@link GridBagLayout} to allow the components to access each other as using several panels
+     * makes this very difficult or impossible
+     * @return A {@link Panel} with all the elements in the GUI
+     */
     private Panel addItems() {
-        // Label for movie title
+        //The ObserverLabel for the title of the currently selected movie
         ObserverLabel title = new ObserverLabel("", ObserverLabel.Type.TITLE);
         title.setAlignment(Label.CENTER);
         title.setPreferredSize(new Dimension((int) ((int) (screenWidth / 10) * 1.5), 40));
@@ -86,11 +130,13 @@ public class MainWindow extends Frame {
         title.setForeground(white);
         title.setBackground(new Color(85, 85, 85));
 
+        //Panel with GridBagLayout
         Panel pane = new Panel();
         pane.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
 
+        //Label with the Title of the GUI
         Label l1 = new Label("Movie Database", Label.CENTER);
         l1.setForeground(white);
         l1.setFont(new Font(VERDANA, Font.BOLD, 80));
@@ -101,6 +147,7 @@ public class MainWindow extends Frame {
         c.insets = new Insets(30, 10, 10, 10);
         pane.add(l1, c);
 
+        //Scrollable middle panel with movies according to current filter
         ScrollPane mContent = new ScrollPane();
         Panel area = new Panel();
         area.setLayout(new BoxLayout(area, BoxLayout.PAGE_AXIS));
@@ -118,6 +165,7 @@ public class MainWindow extends Frame {
         mContent.add(area);
         pane.add(mContent, c);
 
+        //Label and TextField for the text search
         Label searchTitle = createHeader("Search:");
         searchTitle.setPreferredSize(new Dimension((int) ((int) (screenWidth / 10) * 1.5), 40));
         c.gridx = 0;
@@ -134,6 +182,7 @@ public class MainWindow extends Frame {
         c.insets = new Insets(5, 5, 0, 5);
         pane.add(search, c);
 
+        //Label and TextField for the category filter
         Label genreTitle = createHeader("Genre:");
         c.gridy = 7;
         c.insets = new Insets(20, 5, 0, 5);
@@ -146,6 +195,7 @@ public class MainWindow extends Frame {
             pane.add(checkbox, c);
         }
 
+        //Labels and TextFields for the duration filter
         Label durationTitle = createHeader("Duration:");
         c.gridy = 24;
         c.insets = new Insets(20, 5, 0, 5);
@@ -172,6 +222,7 @@ public class MainWindow extends Frame {
         c.insets = new Insets(5, 0, 0, 10);
         pane.add(maxLength, c);
 
+        //Labels and TextFields for the release year filter
         Label releaseTitle = createHeader("Release year:");
         c.gridy = 26;
         c.gridx = 0;
@@ -200,6 +251,7 @@ public class MainWindow extends Frame {
         c.insets = new Insets(5, 0, 0, 10);
         pane.add(toYear, c);
 
+        //Button to apply the filters
         Button submit = new Button("Filter");
         submit.setBackground(new Color(85, 85, 85));
         submit.setForeground(white);
@@ -212,12 +264,14 @@ public class MainWindow extends Frame {
         c.insets = new Insets(25, 45, 20, 45);
         pane.add(submit, c);
 
+        //Button to remove the filters
         Button remove = new Button("Clear");
         remove.setBackground(new Color(85, 85, 85));
         remove.setForeground(white);
         c.gridx = 2;
         pane.add(remove, c);
 
+        //Adding the Label displaying the title of the currently selected movie
         c.ipady = 0;
         c.ipadx = 0;
         c.weighty = 0;
@@ -228,16 +282,17 @@ public class MainWindow extends Frame {
         c.insets = new Insets(10, 5, 0, 5);
         pane.add(title, c);
 
+        //Adding the ObserverLabel displaying the release year of the currently selected movie
         ObserverLabel yearLabel = new ObserverLabel("", ObserverLabel.Type.YEAR);
         yearLabel.setForeground(white);
         yearLabel.setFont(new Font(VERDANA, Font.PLAIN, 20));
         yearLabel.setBackground(new Color(85, 85, 85));
         yearLabel.setAlignment(Label.CENTER);
-
         c.gridy = 6;
         c.insets = new Insets(5, 5, 0, 5);
         pane.add(yearLabel, c);
 
+        //Adding the ObserverLabel displaying the duration of the currently selected movie
         ObserverLabel lengthLabel = new ObserverLabel("", ObserverLabel.Type.LENGTH);
         lengthLabel.setForeground(white);
         lengthLabel.setFont(new Font(VERDANA, Font.ITALIC, 16));
@@ -246,6 +301,7 @@ public class MainWindow extends Frame {
         c.gridy = 7;
         pane.add(lengthLabel, c);
 
+        //Adding the ObserverTextArea displaying the description of the currently selected movie
         ObserverTextArea details = new ObserverTextArea("", 1, 1, TextArea.SCROLLBARS_VERTICAL_ONLY);
         details.setEditable(false);
         details.setFocusable(false);
@@ -259,6 +315,7 @@ public class MainWindow extends Frame {
         c.insets = new Insets(10, 5, 5, 5);
         pane.add(details, c);
 
+        //Adding the Checkbox for toggling the release year display
         Checkbox showYear = new Checkbox("Show release year", true);
         showYear.setFont(new Font(VERDANA, Font.PLAIN, 11));
         showYear.setForeground(white);
@@ -270,12 +327,14 @@ public class MainWindow extends Frame {
         c.weighty = 0;
         pane.add(showYear, c);
 
+        //Adding the Checkbox for toggling the duration display
         Checkbox showLength = new Checkbox("Show duration", true);
         showLength.setFont(new Font(VERDANA, Font.PLAIN, 11));
         showLength.setForeground(white);
         c.gridx = 6;
         pane.add(showLength, c);
 
+        //Adding an ActionListener to the button applying the filters
         submit.addActionListener(e -> {
             MovieQuery query = filter(search, pane, minLength, maxLength, fromYear, toYear);
             HashMap<String, String> movieQuery = new HashMap<>();
@@ -285,6 +344,7 @@ public class MainWindow extends Frame {
             addAll(movieQuery, title, yearLabel, lengthLabel, details, area);
         });
 
+        //Adding an ActionListener to the button removing the filters
         remove.addActionListener(e -> {
             HashMap<String, String> movieMap;
             area.removeAll();
@@ -302,6 +362,7 @@ public class MainWindow extends Frame {
             addAll(movieMap, title, yearLabel, lengthLabel, details, area);
         });
 
+        //Adding a TextListener to the text search bar
         search.addTextListener(e -> {
             if (search.getText().length() >= 4) {
                 MovieQuery query = filter(search, pane, minLength, maxLength, fromYear, toYear);
@@ -313,32 +374,47 @@ public class MainWindow extends Frame {
             }
         });
 
+        //Adding all movies without filtering them on startup
         addAll(determineQuery(showYear, showLength), title, yearLabel, lengthLabel, details, area);
         return pane;
     }
 
+    /**
+     * Filters the movies according to the parameters specified
+     * @param search The {@link TextField} used for text search
+     * @param pane The {@link Panel} containing all filter components
+     * @param minLength The {@link TextField} used for setting a minimum duration
+     * @param maxLength The {@link TextField} used for setting a maximum duration
+     * @param fromYear The {@link TextField} used for setting a minimum release year
+     * @param toYear The {@link TextField} used for setting a maximum release year
+     * @return A {@link MovieQuery} according to the set filters
+     */
     private MovieQuery filter(TextField search,
                         Panel pane,
                         TextField minLength,
                         TextField maxLength,
                         TextField fromYear,
                         TextField toYear) {
-        MovieQuery query = Model.getInstance().createMovieQuery();
-        int minLen = -1;
-        int maxLen = -1;
-        int fromY = -1;
-        int toY = -1;
+        MovieQuery query = Model.getInstance().createMovieQuery(); //MovieQuery that is extended according to filters
+        List<Category> catFilter = new LinkedList<>(); //List storing categories to be filtered for
+        int minLen = -1; //Minimum length
+        int maxLen = -1; //Maximum length
+        int fromY = -1; //Minimum release year
+        int toY = -1; //Maximum release year
 
+        //Get text search content
         if (!search.getText().isBlank()) {
             query = query.filterName(search.getText());
         }
-        List<Category> catFilter = new LinkedList<>();
+        //Get selected categories
         for (int i = 0; i < categories.size(); i++) {
             if (pane.getComponent(5 + i) instanceof Checkbox checkbox && checkbox.getState()) {
                 catFilter.add(categories.get(i));
             }
         }
+        //If categories were selected
         if (!catFilter.isEmpty()) {
+            //If only one category was selected
             if (catFilter.size() == 1) {
                 query = query.filterCategories(catFilter.get(0));
             }
@@ -346,6 +422,7 @@ public class MainWindow extends Frame {
                 query = query.filterCategories(catFilter.toArray(new Category[0]));
             }
         }
+        //If a minimum duration was entered, try to parse the input
         if (!minLength.getText().isBlank()) {
             try {
                 minLen = Integer.parseInt(minLength.getText());
@@ -356,6 +433,7 @@ public class MainWindow extends Frame {
         else {
             minLen = 0;
         }
+        //If a maximum duration was entered, try to parse the input
         if (!maxLength.getText().isBlank()) {
             try {
                 maxLen = Integer.parseInt(maxLength.getText());
@@ -366,10 +444,11 @@ public class MainWindow extends Frame {
         else {
             maxLen = Integer.MAX_VALUE;
         }
+        //If either a minimum or maximum duration was entered, add to filters
         if (!(minLen == 0 && maxLen == Integer.MAX_VALUE)) {
             query = query.filterLength(minLen, maxLen);
         }
-
+        //If a minimum release year was entered, try to parse the input
         if (!fromYear.getText().isBlank()) {
             try {
                 fromY = Integer.parseInt(fromYear.getText());
@@ -380,6 +459,7 @@ public class MainWindow extends Frame {
         else {
             fromY = Integer.MIN_VALUE;
         }
+        //If a maximum release year was entered, try to parse the input
         if (!toYear.getText().isBlank()) {
             try {
                 toY = Integer.parseInt(toYear.getText());
@@ -390,12 +470,20 @@ public class MainWindow extends Frame {
         else {
             toY = Integer.MAX_VALUE;
         }
+        //If either a minimum or maximum release year was entered, add to filters
         if (!(fromY == Integer.MIN_VALUE && toY == Integer.MAX_VALUE)) {
             query = query.filterYear(fromY, toY);
         }
         return query;
     }
 
+    /**
+     * Determine, if the movies should be displayed with their duration, release year, both or neither
+     * @param query The current {@link MovieQuery} to be expanded
+     * @param showYear The {@link Checkbox} for toggling the release year display
+     * @param showLength The {@link Checkbox} for toggling the duration display
+     * @return The expanded {@link MovieQuery}
+     */
     private MovieQuery getQuery(MovieQuery query, Checkbox showYear, Checkbox showLength) {
         if (showYear.getState() && !showLength.getState()) {
             return query.withYear();
@@ -412,17 +500,31 @@ public class MainWindow extends Frame {
         }
     }
 
+    /**
+     * Creates a query for all available categories and adds the returned movies to a {@link HashMap}
+     * @param showYear The {@link Checkbox} for toggling the release year display
+     * @param showLength The {@link Checkbox} for toggling the duration display
+     * @return The HashMap containing all {@link Movie}s returned by the query
+     */
     private HashMap<String, String> determineQuery(Checkbox showYear, Checkbox showLength) {
         HashMap<String, String> movieMap = new HashMap<>();
         Model.getInstance().
                 createCategoryQuery()
                 .get()
-                .forEach(cat -> buildQuery(cat, showYear, showLength)
+                .forEach(cat -> buildQueryForCategory(cat, showYear, showLength)
                         .get().forEach((Movie m) -> movieMap.put(m.toString(), m.description())));
         return movieMap;
     }
 
-    private MovieQuery buildQuery(Category cat, Checkbox showYear, Checkbox showLength) {
+    /**
+     * Builds the base query for each category according to the display preferences set with the checkboxes to toggle
+     * the duration and release year display
+     * @param cat The {@link Category} to create the {@link MovieQuery} for
+     * @param showYear The {@link Checkbox} for toggling the release year display
+     * @param showLength The {@link Checkbox} for toggling the duration display
+     * @return The {@link MovieQuery} for the passed category
+     */
+    private MovieQuery buildQueryForCategory(Category cat, Checkbox showYear, Checkbox showLength) {
         MovieQuery query = Model.getInstance()
                 .createMovieQuery()
                 .filterCategories(cat)
@@ -431,6 +533,11 @@ public class MainWindow extends Frame {
         return getQuery(query, showYear, showLength);
     }
 
+    /**
+     * Creates the checkboxes used for the category filters
+     * @param text The label of the checkbox
+     * @return A styled {@link Checkbox} with the specified label
+     */
     private Checkbox createCheckbox(String text) {
         Checkbox checkbox = new Checkbox(text);
         checkbox.setFont(new Font(VERDANA, Font.PLAIN, 14));
@@ -439,6 +546,15 @@ public class MainWindow extends Frame {
         return checkbox;
     }
 
+    /**
+     * Adds all movies from the passed map and connects the elements from the Observer Pattern to them
+     * @param movieMap The {@link HashMap} containing the movies according to the set filters
+     * @param title The {@link ObserverLabel} for the movie's title
+     * @param yearLabel The {@link ObserverLabel} for the movie's release year
+     * @param lengthLabel The {@link ObserverLabel} for the movie's duration
+     * @param details The {@link ObserverTextArea} for the movie's description
+     * @param area The {@link Panel} to which the elements will be added to
+     */
     private void addAll(
             HashMap<String, String> movieMap,
             ObserverLabel title,
@@ -468,7 +584,6 @@ public class MainWindow extends Frame {
 
     /**
      * Creates a {@link Label} with the font 'Verdana', in plain style, font size 12 and white text.
-     *
      * @param text A {@link String}: The text to be displayed by the {@link Label}
      * @return A styled {@link Label} with the specified text
      */

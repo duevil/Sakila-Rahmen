@@ -10,7 +10,7 @@ import java.util.List;
 
 public class Program {
     public static final String APP_TITLE = "Sakila Viewer";
-    public static final float APP_V = 0.10F;
+    public static final float APP_V = 0.11F;
     public static final String DB_URL = "jdbc:mysql://localhost/sakila";
 
     public static void main(String[] args) {
