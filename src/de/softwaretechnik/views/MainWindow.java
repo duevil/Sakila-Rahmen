@@ -17,16 +17,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
-//TODO:
-//      [X] Add way to filter for text search
-//		[X] Add filter methods
-//		[X] Add clickable Movies
-//		[X] Format Movies
-//		[X] Add Movie Info to Details on Click
-//		[X] Find out why everything is repeated
-//      [ ] Reset Test Filter after backspacing from 4 chars to <4 chars
-//      [ ] Answer questions
-
 /**
  * Sets up the GUI with all necessary components and functions
  * @author Elisa Johanna Woelk (m30192)
