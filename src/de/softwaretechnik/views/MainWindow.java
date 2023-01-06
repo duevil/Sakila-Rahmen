@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 
 /**
  * Sets up the GUI with all necessary components and functions
+ *
  * @author Elisa Johanna Woelk (m30192)
  */
 public class MainWindow extends Frame {
@@ -27,29 +28,6 @@ public class MainWindow extends Frame {
      * The MainWindow instance used for setting up the GUI according to the Singleton Pattern
      */
     private static final MainWindow window = new MainWindow();
-
-    /**
-     * The screen width of the users display used for dynamic layout
-     */
-    private final double screenWidth = Toolkit.getDefaultToolkit().getScreenSize().getWidth();
-
-    /**
-     * The screen height of the users display used for dynamic layout
-     */
-    private final double screenHeight = Toolkit.getDefaultToolkit().getScreenSize().getHeight();
-
-    /**
-     * The factory method for getting the {@link #window instance} according to the Singleton Pattern
-     * @return A {@link MainWindow} object: The instance of this class
-     */
-    public static MainWindow getInstance() {
-        return window;
-    }
-
-    /**
-     * A color used for the GUI's text
-     */
-    private final Color white = new Color(246, 246, 246);
 
     /**
      * The font family used in the GUI
@@ -62,29 +40,29 @@ public class MainWindow extends Frame {
     private static final Logger LOGGER = Logger.getLogger(MainWindow.class.getName());
 
     /**
-     * A {@link List} storing the available {@link Category categories}
-     */
-    private List<Category> categories;
-
-    /**
      * A {@link Label} storing the last clicked label when browsing the list of movies
      */
     private static Label last;
 
     /**
-     * A Getter for {@link #last}
-     * @return A {@link Label}: {@link #last}
+     * The screen width of the users display used for dynamic layout
      */
-    public static Label getLast() {
-        return last;
-    }
+    private final double screenWidth = Toolkit.getDefaultToolkit().getScreenSize().getWidth();
 
     /**
-     * A Setter for {@link #last}
+     * The screen height of the users display used for dynamic layout
      */
-    public static void setLast(Label last) {
-        MainWindow.last = last;
-    }
+    private final double screenHeight = Toolkit.getDefaultToolkit().getScreenSize().getHeight();
+
+    /**
+     * A color used for the GUI's text
+     */
+    private final Color white = new Color(246, 246, 246);
+
+    /**
+     * A {@link List} storing the available {@link Category categories}
+     */
+    private final List<Category> categories;
 
     /**
      * The private constructor for this class according to the Singleton Pattern <br>
@@ -100,6 +78,31 @@ public class MainWindow extends Frame {
     }
 
     /**
+     * The factory method for getting the {@link #window instance} according to the Singleton Pattern
+     *
+     * @return A {@link MainWindow} object: The instance of this class
+     */
+    public static MainWindow getInstance() {
+        return window;
+    }
+
+    /**
+     * A Getter for {@link #last}
+     *
+     * @return A {@link Label}: {@link #last}
+     */
+    public static Label getLast() {
+        return last;
+    }
+
+    /**
+     * A Setter for {@link #last}
+     */
+    public static void setLast(Label last) {
+        MainWindow.last = last;
+    }
+
+    /**
      * Adds all elements to the GUI
      */
     public void createGUI() {
@@ -109,16 +112,20 @@ public class MainWindow extends Frame {
     /**
      * Sets up the GUI via a {@link GridBagLayout} to allow the components to access each other as using several panels
      * makes this very difficult or impossible
+     *
      * @return A {@link Panel} with all the elements in the GUI
      */
     private Panel addItems() {
+        int marginFive = 5;
+        Color grey = new Color(85, 85, 85);
+
         //The ObserverLabel for the title of the currently selected movie
         ObserverLabel title = new ObserverLabel("", ObserverLabel.Type.TITLE);
         title.setAlignment(Label.CENTER);
         title.setPreferredSize(new Dimension((int) ((int) (screenWidth / 10) * 1.5), 40));
         title.setFont(new Font(VERDANA, Font.BOLD, 20));
         title.setForeground(white);
-        title.setBackground(new Color(85, 85, 85));
+        title.setBackground(grey);
 
         //Panel with GridBagLayout
         Panel pane = new Panel();
@@ -144,9 +151,9 @@ public class MainWindow extends Frame {
         mContent.setPreferredSize(new Dimension(1100, (int) (screenHeight - l1.getHeight() - 250)));
         mContent.setMinimumSize(new Dimension(1100, (int) (screenHeight - l1.getHeight() - 250)));
         area.setFocusable(false);
-		area.setFont(new Font(VERDANA, Font.PLAIN, 14));
-		area.setForeground(white);
-        area.setBackground(new Color(85, 85, 85));
+        area.setFont(new Font(VERDANA, Font.PLAIN, 14));
+        area.setForeground(white);
+        area.setBackground(grey);
         c.weightx = 0.5;
         c.gridx = 4;
         c.gridy = 5;
@@ -163,22 +170,22 @@ public class MainWindow extends Frame {
         c.weighty = 0;
         c.gridwidth = 4;
         c.gridheight = 1;
-        c.insets = new Insets(10, 5, 0, 5);
+        c.insets = new Insets(10, marginFive, 0, marginFive);
         pane.add(searchTitle, c);
 
         TextField search = new TextField();
         search.setFont(new Font(VERDANA, Font.PLAIN, 20));
         c.gridy = 6;
-        c.insets = new Insets(5, 5, 0, 5);
+        c.insets = new Insets(5, marginFive, 0, marginFive);
         pane.add(search, c);
 
         //Label and TextField for the category filter
         Label genreTitle = createHeader("Genre:");
         c.gridy = 7;
-        c.insets = new Insets(20, 5, 0, 5);
+        c.insets = new Insets(20, marginFive, 0, marginFive);
         pane.add(genreTitle, c);
 
-        c.insets = new Insets(10, 5, 0, 5);
+        c.insets = new Insets(10, marginFive, 0, marginFive);
         for (int i = 0; i < categories.size(); i++) {
             c.gridy = 8 + i;
             Checkbox checkbox = createCheckbox(categories.get(i).toString());
@@ -188,28 +195,28 @@ public class MainWindow extends Frame {
         //Labels and TextFields for the duration filter
         Label durationTitle = createHeader("Duration:");
         c.gridy = 24;
-        c.insets = new Insets(20, 5, 0, 5);
+        c.insets = new Insets(20, marginFive, 0, marginFive);
         pane.add(durationTitle, c);
 
         Label minLenLabel = createLabel("Min:");
         c.gridy = 25;
         c.gridwidth = 1;
-        c.insets = new Insets(5, 30, 0, 5);
+        c.insets = new Insets(marginFive, 30, 0, marginFive);
         pane.add(minLenLabel, c);
 
         TextField minLength = new TextField();
         c.gridx = 1;
-        c.insets = new Insets(5, 0, 0, 10);
+        c.insets = new Insets(marginFive, 0, 0, 10);
         pane.add(minLength, c);
 
         Label maxLenLabel = createLabel("Max:");
         c.gridx = 2;
-        c.insets = new Insets(5, 30, 0, 5);
+        c.insets = new Insets(marginFive, 30, 0, marginFive);
         pane.add(maxLenLabel, c);
 
         TextField maxLength = new TextField();
         c.gridx = 3;
-        c.insets = new Insets(5, 0, 0, 10);
+        c.insets = new Insets(marginFive, 0, 0, 10);
         pane.add(maxLength, c);
 
         //Labels and TextFields for the release year filter
@@ -217,33 +224,33 @@ public class MainWindow extends Frame {
         c.gridy = 26;
         c.gridx = 0;
         c.gridwidth = 4;
-        c.insets = new Insets(20, 5, 0, 5);
+        c.insets = new Insets(20, marginFive, 0, marginFive);
         pane.add(releaseTitle, c);
 
         Label from = createLabel("From:");
         c.gridy = 27;
         c.gridwidth = 1;
-        c.insets = new Insets(5, 30, 0, 5);
+        c.insets = new Insets(marginFive, 30, 0, marginFive);
         pane.add(from, c);
 
         TextField fromYear = new TextField();
         c.gridx = 1;
-        c.insets = new Insets(5, 0, 0, 10);
+        c.insets = new Insets(marginFive, 0, 0, 10);
         pane.add(fromYear, c);
 
         Label to = createLabel("To:");
         c.gridx = 2;
-        c.insets = new Insets(5, 30, 0, 5);
+        c.insets = new Insets(marginFive, 30, 0, marginFive);
         pane.add(to, c);
 
         TextField toYear = new TextField();
         c.gridx = 3;
-        c.insets = new Insets(5, 0, 0, 10);
+        c.insets = new Insets(marginFive, 0, 0, 10);
         pane.add(toYear, c);
 
         //Button to apply the filters
         Button submit = new Button("Filter");
-        submit.setBackground(new Color(85, 85, 85));
+        submit.setBackground(grey);
         submit.setForeground(white);
         c.ipady = 15;
         c.ipadx = 10;
@@ -256,7 +263,7 @@ public class MainWindow extends Frame {
 
         //Button to remove the filters
         Button remove = new Button("Clear");
-        remove.setBackground(new Color(85, 85, 85));
+        remove.setBackground(grey);
         remove.setForeground(white);
         c.gridx = 2;
         pane.add(remove, c);
@@ -269,24 +276,24 @@ public class MainWindow extends Frame {
         c.gridx = 5;
         c.gridy = 5;
         c.gridwidth = 2;
-        c.insets = new Insets(10, 5, 0, 5);
+        c.insets = new Insets(10, marginFive, 0, marginFive);
         pane.add(title, c);
 
         //Adding the ObserverLabel displaying the release year of the currently selected movie
         ObserverLabel yearLabel = new ObserverLabel("", ObserverLabel.Type.YEAR);
         yearLabel.setForeground(white);
         yearLabel.setFont(new Font(VERDANA, Font.PLAIN, 20));
-        yearLabel.setBackground(new Color(85, 85, 85));
+        yearLabel.setBackground(grey);
         yearLabel.setAlignment(Label.CENTER);
         c.gridy = 6;
-        c.insets = new Insets(5, 5, 0, 5);
+        c.insets = new Insets(marginFive, marginFive, 0, marginFive);
         pane.add(yearLabel, c);
 
         //Adding the ObserverLabel displaying the duration of the currently selected movie
         ObserverLabel lengthLabel = new ObserverLabel("", ObserverLabel.Type.LENGTH);
         lengthLabel.setForeground(white);
         lengthLabel.setFont(new Font(VERDANA, Font.ITALIC, 16));
-        lengthLabel.setBackground(new Color(85, 85, 85));
+        lengthLabel.setBackground(grey);
         lengthLabel.setAlignment(Label.CENTER);
         c.gridy = 7;
         pane.add(lengthLabel, c);
@@ -297,12 +304,12 @@ public class MainWindow extends Frame {
         details.setFocusable(false);
         details.setFont(new Font(VERDANA, Font.ITALIC, 16));
         details.setForeground(white);
-        details.setBackground(new Color(85, 85, 85));
+        details.setBackground(grey);
         c.gridy = 8;
         c.gridheight = 20;
         c.fill = GridBagConstraints.BOTH;
         c.weighty = 1;
-        c.insets = new Insets(10, 5, 5, 5);
+        c.insets = new Insets(10, marginFive, marginFive, marginFive);
         pane.add(details, c);
 
         //Adding the Checkbox for toggling the release year display
@@ -371,20 +378,21 @@ public class MainWindow extends Frame {
 
     /**
      * Filters the movies according to the parameters specified
-     * @param search The {@link TextField} used for text search
-     * @param pane The {@link Panel} containing all filter components
+     *
+     * @param search    The {@link TextField} used for text search
+     * @param pane      The {@link Panel} containing all filter components
      * @param minLength The {@link TextField} used for setting a minimum duration
      * @param maxLength The {@link TextField} used for setting a maximum duration
-     * @param fromYear The {@link TextField} used for setting a minimum release year
-     * @param toYear The {@link TextField} used for setting a maximum release year
+     * @param fromYear  The {@link TextField} used for setting a minimum release year
+     * @param toYear    The {@link TextField} used for setting a maximum release year
      * @return A {@link MovieQuery} according to the set filters
      */
     private MovieQuery filter(TextField search,
-                        Panel pane,
-                        TextField minLength,
-                        TextField maxLength,
-                        TextField fromYear,
-                        TextField toYear) {
+                              Panel pane,
+                              TextField minLength,
+                              TextField maxLength,
+                              TextField fromYear,
+                              TextField toYear) {
         MovieQuery query = Model.getInstance().createMovieQuery(); //MovieQuery that is extended according to filters
         List<Category> catFilter = new LinkedList<>(); //List storing categories to be filtered for
         int minLen = -1; //Minimum length
@@ -416,7 +424,8 @@ public class MainWindow extends Frame {
         if (!minLength.getText().isBlank()) {
             try {
                 minLen = Integer.parseInt(minLength.getText());
-            } catch (NumberFormatException nfe) {
+            }
+            catch (NumberFormatException nfe) {
                 LOGGER.severe("Not a valid minimum length");
             }
         }
@@ -427,7 +436,8 @@ public class MainWindow extends Frame {
         if (!maxLength.getText().isBlank()) {
             try {
                 maxLen = Integer.parseInt(maxLength.getText());
-            } catch (NumberFormatException nfe) {
+            }
+            catch (NumberFormatException nfe) {
                 LOGGER.severe("Not a valid maximum length");
             }
         }
@@ -442,7 +452,8 @@ public class MainWindow extends Frame {
         if (!fromYear.getText().isBlank()) {
             try {
                 fromY = Integer.parseInt(fromYear.getText());
-            } catch (NumberFormatException nfe) {
+            }
+            catch (NumberFormatException nfe) {
                 LOGGER.severe("Not a valid starting year");
             }
         }
@@ -453,7 +464,8 @@ public class MainWindow extends Frame {
         if (!toYear.getText().isBlank()) {
             try {
                 toY = Integer.parseInt(toYear.getText());
-            } catch (NumberFormatException nfe) {
+            }
+            catch (NumberFormatException nfe) {
                 LOGGER.severe("Not a valid ending year");
             }
         }
@@ -469,12 +481,13 @@ public class MainWindow extends Frame {
 
     /**
      * Determine, if the movies should be displayed with their duration, release year, both or neither
-     * @param query The current {@link MovieQuery} to be expanded
-     * @param showYear The {@link Checkbox} for toggling the release year display
+     *
+     * @param query      The current {@link MovieQuery} to be expanded
+     * @param showYear   The {@link Checkbox} for toggling the release year display
      * @param showLength The {@link Checkbox} for toggling the duration display
      * @return The expanded {@link MovieQuery}
      */
-    private MovieQuery getQuery(MovieQuery query, Checkbox showYear, Checkbox showLength) {
+    private static MovieQuery getQuery(MovieQuery query, Checkbox showYear, Checkbox showLength) {
         if (showYear.getState() && !showLength.getState()) {
             return query.withYear();
         }
@@ -492,11 +505,12 @@ public class MainWindow extends Frame {
 
     /**
      * Creates a query for all available categories and adds the returned movies to a {@link HashMap}
-     * @param showYear The {@link Checkbox} for toggling the release year display
+     *
+     * @param showYear   The {@link Checkbox} for toggling the release year display
      * @param showLength The {@link Checkbox} for toggling the duration display
      * @return The HashMap containing all {@link Movie}s returned by the query
      */
-    private HashMap<String, String> determineQuery(Checkbox showYear, Checkbox showLength) {
+    private static HashMap<String, String> determineQuery(Checkbox showYear, Checkbox showLength) {
         HashMap<String, String> movieMap = new HashMap<>();
         Model.getInstance().
                 createCategoryQuery()
@@ -509,12 +523,13 @@ public class MainWindow extends Frame {
     /**
      * Builds the base query for each category according to the display preferences set with the checkboxes to toggle
      * the duration and release year display
-     * @param cat The {@link Category} to create the {@link MovieQuery} for
-     * @param showYear The {@link Checkbox} for toggling the release year display
+     *
+     * @param cat        The {@link Category} to create the {@link MovieQuery} for
+     * @param showYear   The {@link Checkbox} for toggling the release year display
      * @param showLength The {@link Checkbox} for toggling the duration display
      * @return The {@link MovieQuery} for the passed category
      */
-    private MovieQuery buildQueryForCategory(Category cat, Checkbox showYear, Checkbox showLength) {
+    private static MovieQuery buildQueryForCategory(Category cat, Checkbox showYear, Checkbox showLength) {
         MovieQuery query = Model.getInstance()
                 .createMovieQuery()
                 .filterCategories(cat)
@@ -525,6 +540,7 @@ public class MainWindow extends Frame {
 
     /**
      * Creates the checkboxes used for the category filters
+     *
      * @param text The label of the checkbox
      * @return A styled {@link Checkbox} with the specified label
      */
@@ -538,14 +554,15 @@ public class MainWindow extends Frame {
 
     /**
      * Adds all movies from the passed map and connects the elements from the Observer Pattern to them
-     * @param movieMap The {@link HashMap} containing the movies according to the set filters
-     * @param title The {@link ObserverLabel} for the movie's title
-     * @param yearLabel The {@link ObserverLabel} for the movie's release year
+     *
+     * @param movieMap    The {@link HashMap} containing the movies according to the set filters
+     * @param title       The {@link ObserverLabel} for the movie's title
+     * @param yearLabel   The {@link ObserverLabel} for the movie's release year
      * @param lengthLabel The {@link ObserverLabel} for the movie's duration
-     * @param details The {@link ObserverTextArea} for the movie's description
-     * @param area The {@link Panel} to which the elements will be added to
+     * @param details     The {@link ObserverTextArea} for the movie's description
+     * @param area        The {@link Panel} to which the elements will be added to
      */
-    private void addAll(
+    private static void addAll(
             HashMap<String, String> movieMap,
             ObserverLabel title,
             ObserverLabel yearLabel,
@@ -574,6 +591,7 @@ public class MainWindow extends Frame {
 
     /**
      * Creates a {@link Label} with the font 'Verdana', in plain style, font size 12 and white text.
+     *
      * @param text A {@link String}: The text to be displayed by the {@link Label}
      * @return A styled {@link Label} with the specified text
      */
@@ -586,6 +604,7 @@ public class MainWindow extends Frame {
 
     /**
      * Creates a {@link Label} used for headers, with the font 'Verdana', in bold style, font size 16 and white text.
+     *
      * @param text A {@link String}: The text to be displayed by the {@link Label}
      * @return A styled header {@link Label} with the specified text
      */
